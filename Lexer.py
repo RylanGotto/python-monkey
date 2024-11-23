@@ -13,6 +13,8 @@ class Lexer:
     def next_token(self):
         token = None
 
+        self.skip_whitespace()
+
         match self.ch:
             case "=":
                 if self.peek_char() == "=":
@@ -66,7 +68,7 @@ class Lexer:
                     _type = INT
                     return Token(_type, literal)
                 else:
-                    token = Token("", self.ch)
+                    token = Token(ILLEGAL, self.ch)
 
         self.read_char()
         return token
@@ -86,7 +88,7 @@ class Lexer:
         return self._input[position : self.position]
 
     def skip_whitespace(self):
-        while is_whitespace(self.ch):
+        while self.is_whitespace():
             self.read_char()
 
     def read_number(self):
@@ -100,3 +102,7 @@ class Lexer:
             return 0
         else:
             return self._input[self.read_position]
+
+    def is_whitespace(self):
+        if self.ch == " " or self.ch == "\t" or self.ch == "\r" or self.ch == "\n":
+            self.read_char()

@@ -17,6 +17,3 @@ def start():
         while token._type != "EOF":
             print(token._type, token.literal)
             token = L.next_token()
-
-
-start()

@@ -5,19 +5,19 @@ ASSIGN = "ASSIGN"
 BANG = "BANG"
 COLON = "COLON"
 COMMA = "COMMA"
-ELSE = "ELSE"
+ELSE = "else"
 EOF = "EOF"
 EQ = "EQ"
 FALSE = "FALSE"
 FUNCTION = "FUNCTION"
 GT = "GT"
 IDENT = "IDENT"
-IF = "IF"
+IF = "if"
 ILLEGAL = "ILLEGAL"
 INT = "INT"
 LBRACE = "LBRACE"
 LBRACKET = "LBRACKET"
-LET = "LET"
+LET = "let"
 LPAREN = "LPAREN"
 LT = "LT"
 MINUS = "MINUS"
@@ -25,7 +25,7 @@ NOT_EQ = "NOT_EQ"
 PLUS = "PLUS"
 RBRACE = "RBRACE"
 RBRACKET = "RBRACKET"
-RETURN = "RETURN"
+RETURN = "return"
 RPAREN = "RPAREN"
 SEMICOLON = "SEMICOLON"
 SLASH = "SLASH"
@@ -76,10 +76,6 @@ class Token:
 
 def is_digit(ch):
     return "0" <= ch and ch <= "9"
-
-
-def is_whitespace(ch):
-    return ch == " " or ch == "\t" or ch == "\r" or ch == "\n"
 
 
 def is_letter(ch):
