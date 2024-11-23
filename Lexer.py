@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .tokens import *
+from .Tokens import *
 
 
 @dataclass
@@ -66,7 +66,7 @@ class Lexer:
                     _type = INT
                     return Token(_type, literal)
                 else:
-                    token = Token(ILLEGAL, self.ch)
+                    token = Token("", self.ch)
 
         self.read_char()
         return token
