@@ -20,7 +20,7 @@ class ConcreteNode(Node):
 @dataclass
 class Statement(Node):
     def token_literal(self):
-        pass
+        return self.token.literal
 
     def statement_node(self):
         pass
@@ -29,7 +29,7 @@ class Statement(Node):
 @dataclass
 class Expression(Node):
     def token_literal(self):
-        pass
+        return self.token.literal
 
     def expression_node(self):
         pass
@@ -51,9 +51,6 @@ class Identifier(Expression):
     token: Tokens.Token
     value: str
 
-    def token_literal(self):
-        return self.token.literal
-
 
 @dataclass
 class LetStatement(Statement):
@@ -61,8 +58,11 @@ class LetStatement(Statement):
     name: Identifier
     value: Expression
 
-    def token_literal(self):
-        return self.token.literal
+
+@dataclass
+class ReturnStatement(Statement):
+    token: Tokens.Token
+    return_value: Expression
 
 
 # node = ConcreteNode()

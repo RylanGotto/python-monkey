@@ -32,7 +32,7 @@ SLASH = "SLASH"
 STRING = "STRING"
 TRUE = "TRUE"
 
-
+# Look up dict because getting key by value in python suck's
 tokens = {
     "ASSIGN": "=",
     "ASTERISK": "*",

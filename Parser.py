@@ -1,4 +1,3 @@
-# from .Tokens import * as tokens
 from . import Ast, Lexer
 from . import Tokens as T
 
@@ -34,8 +33,21 @@ class Parser:
         match self.cur_token._type:
             case T.LET:
                 return self.parse_let_statement()
+            case T.RETURN:
+                return self.parse_return_statement()
             case _:
                 return None
+
+    def parse_return_statement(self):
+        stmt = Ast.ReturnStatement(self.cur_token, None)
+        self.next_token()
+
+        # TODO parse expression
+
+        while not self.cur_token_is(T.SEMICOLON):
+            self.next_token()
+
+        return stmt
 
     def parse_let_statement(self):
         stmt = Ast.LetStatement(self.cur_token, None, None)
@@ -65,12 +77,18 @@ class Parser:
         if self.peek_token_is(_type):
             self.next_token()
             return True
+        self.peek_errors(_type)
         return False
 
+    def peek_errors(self, _type):
+        self.errors.append(
+            f"Expected next token to be {_type}, got {self.peek_token._type} instead."
+        )
 
-inp = """let x = 5;
-let y = 10;
-let foobar = 838383;
+
+inp = """return 5;
+return 10;
+return 993322;
 """
 l = Lexer.Lexer(inp, 0, 0, "")
 p = Parser(l)
@@ -78,5 +96,4 @@ p = Parser(l)
 program = p.parse_program()
 
 for i in program.statements:
-    print(i.token_literal())
-    print(i.name.token_literal())
+    print(i)
