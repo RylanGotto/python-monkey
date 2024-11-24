@@ -1,5 +1,17 @@
+from enum import Enum, auto
+
 from . import Ast, Lexer
 from . import Tokens as T
+
+
+class Order(Enum):
+    LOWEST = auto()
+    EQUALS = auto()
+    LESSGREATER = auto()
+    SUM = auto()
+    PRODUCT = auto()
+    PREFIX = auto()
+    CALL = auto()
 
 
 class Parser:
@@ -7,11 +19,17 @@ class Parser:
     cur_token: T.Token
     peek_token: T.Token
 
+    # TODO: remove dataclass attributes, and clean up __init__.
     def __init__(self, lexer, cur_token=0, peek_token=0):
         self.cur_token = cur_token
         self.peek_token = peek_token
-        self.errors = []
         self.l = lexer
+        self.errors = []
+        self.prefix_parse_fns = {}
+        self.infix_parse_fns = {}
+
+        self.prefix_parse_fns[T.IDENT] = self.parse_identifier
+
         self.next_token()
         self.next_token()
 
@@ -85,14 +103,41 @@ class Parser:
             f"Expected next token to be {_type}, got {self.peek_token._type} instead."
         )
 
+    def register_prefix(self, _type, fn):
+        self.prefix_parse_fns[_type] = fn
 
-# inp = """let x 5;
-# let = 10;
-# let 838383;
-# """
-# l = Lexer.Lexer(inp, 0, 0, "")
-# p = Parser(l)
-# program = p.parse_program()
-# print(p.errors)
-# for i in program.statements:
-#     print(i)
+    def register_infix(self, _type, fn):
+        self.infix_parse_fns[_type] = fn
+
+    def parse_expression_statement(self):
+        stmt = Ast.ExpressionStatement(token=self.cur_token)
+        stmt.expression = self.parse_expression(Order.LOWEST.value)
+
+        if self.peek_token_is(T.SEMICOLON):
+            self.next_token()
+        return stmt
+
+    def parse_expression(self, precedence):
+
+        if self.cur_token._type in self.prefix_parse_fns:
+            prefix = self.prefix_parse_fns[self.cur_token._type]
+        else:
+            prefix = None
+
+        if prefix == None:
+            return None
+
+        left_exp = prefix()
+
+        return left_exp
+
+    def parse_identifier(self):
+        return Ast.Identifier(self.cur_token, self.cur_token.literal)
+
+
+def parse_prefix_plus():
+    pass
+
+
+def parse_infix_plus():
+    pass
