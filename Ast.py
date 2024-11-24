@@ -63,15 +63,3 @@ class LetStatement(Statement):
 class ReturnStatement(Statement):
     token: Tokens.Token
     return_value: Expression
-
-
-# node = ConcreteNode()
-# statement = Statement()
-# exp = Expression()
-# program = Program([])
-# token = Tokens.Token(Tokens.IDENT, "five")
-# identifier = Identifier(token=token, value="IDENT")
-# ls = LetStatement(token=token, name=identifier, value=exp)
-
-# print(ls.token_literal())
-# print(ls.value.expression_node())

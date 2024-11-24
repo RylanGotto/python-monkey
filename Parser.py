@@ -84,16 +84,3 @@ class Parser:
         self.errors.append(
             f"Expected next token to be {_type}, got {self.peek_token._type} instead."
         )
-
-
-inp = """return 5;
-return 10;
-return 993322;
-"""
-l = Lexer.Lexer(inp, 0, 0, "")
-p = Parser(l)
-
-program = p.parse_program()
-
-for i in program.statements:
-    print(i)

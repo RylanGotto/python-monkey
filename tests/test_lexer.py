@@ -1,6 +1,7 @@
 import pytest
 
-from .Lexer import *
+from monkey.Lexer import Lexer
+from monkey.Tokens import tokens
 
 test_case_0 = """
     let add = fn(x, y) 
@@ -36,13 +37,13 @@ test_case_2 = """
 """
 
 
-@pytest.mark.parametrize("inp", [test_case_0, test_case_1, test_case_2])
-def test_lexer(inp):
+@pytest.mark.parametrize("_input", [test_case_0, test_case_1, test_case_2])
+def test_lexer(_input):
     """
     Run Test cases, setup so expected cases do not need to be define in the test cases.
     """
 
-    L = Lexer(inp, 0, 0, "")
+    L = Lexer(_input, 0, 0, "")
     L.read_char()
     token = L.next_token()
 
@@ -50,7 +51,9 @@ def test_lexer(inp):
         if token._type == "IDENT":
             # if IDENT's literal is a string, case is True advanced token and continue.
             if not isinstance(token.literal, str):
-                assert False
+                assert (
+                    False
+                ), f"IDENT's literal should be of type `str`, got {type(token.literal)}"
             token = L.next_token()
             continue
         if token._type == "INT":
@@ -61,10 +64,14 @@ def test_lexer(inp):
                 token = L.next_token()
                 continue
             except:
-                assert False
+                assert (
+                    False
+                ), f"INT's literal should be of type `int`, got {type(token.literal)}"
         # if token's type in look up dict is not equal to token's literal, case is False.
         if tokens[token._type] != token.literal:
-            assert False
+            assert (
+                False
+            ), f"token type and literal do not match, expected {tokens[token._type]}, got {token.literal}"
 
         token = L.next_token()
     assert True
