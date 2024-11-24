@@ -74,4 +74,3 @@ def test_lexer(_input):
             ), f"token type and literal do not match, expected {tokens[token._type]}, got {token.literal}"
 
         token = L.next_token()
-    assert True

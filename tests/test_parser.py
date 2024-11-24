@@ -21,7 +21,6 @@ test_case_fail_0 = """
 
 @pytest.mark.parametrize("_input", [test_case_fail_0])
 def test_parse_errors(_input):
-    print(_input)
     l = Lexer(_input, 0, 0, "")
     p = Parser(l)
 
@@ -33,7 +32,7 @@ def test_parse_errors(_input):
         assert False
 
     if p.errors:
-        assert True
+        pass
 
 
 @pytest.mark.parametrize("_input, expected", test_data)
@@ -65,8 +64,6 @@ def test_let_statement(_input, expected):
             assert (
                 False
             ), f"Statement name token literal does not match expected. Expected {i.name.token_literal()}, got {expected[k]}"
-
-    assert True
 
 
 def test_return():
@@ -101,5 +98,3 @@ def test_return():
         #     assert (
         #         False
         #     ), f"Statement name token literal does not match expected. Expected {i.name.token_literal()}, got {expected[k]}"
-
-    assert True
