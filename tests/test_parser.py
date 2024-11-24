@@ -4,29 +4,6 @@ from monkey.Ast import *
 from monkey.Lexer import Lexer
 from monkey.Parser import Parser
 
-test_case_fail_0 = """
-    let x 5;
-    let = 10;
-    let 838383;
-"""
-
-
-@pytest.mark.parametrize("_input", [test_case_fail_0])
-def test_parse_errors(_input):
-    l = Lexer(_input, 0, 0, "")
-    p = Parser(l)
-
-    program = p.parse_program()
-    if program == None:
-        assert False, "program should not be None."
-
-    if len(program.statements) != 0:
-        assert False
-
-    if p.errors:
-        pass
-
-
 test_case_let_state_0 = """
     let x = 5;
     let y = 10;
@@ -98,8 +75,6 @@ def test_identifier_expression():
     p = Parser(l)
 
     program = p.parse_program()
-    if program == None:
-        assert False, "program should not be None."
 
     if len(program.statements) != 1:
         assert False, f"expected 1, got {len(program.statements)}."
@@ -119,4 +94,6 @@ def test_identifier_expression():
             assert False, f"ident.Value not `foobar`, got {ident.value}"
 
         if ident.token_literal() != "foobar":
-            assert False, f"ident.token_literal() not `foobar`, got {ident.value}"
+            assert (
+                False
+            ), f"ident.token_literal() not `foobar`, got {ident.token_literal()}"

@@ -104,4 +104,10 @@ class Lexer:
             return self._input[self.read_position]
 
     def is_whitespace(self):
-        return self.ch == " " or self.ch == "\t" or self.ch == "\r" or self.ch == "\n"
+        return (
+            self.ch == " "
+            or self.ch == "\t"
+            or self.ch == "\r"
+            or self.ch == "\n"
+            or self.ch == ""
+        )

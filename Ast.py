@@ -84,7 +84,6 @@ class ReturnStatement(Statement):
 
 
 class ExpressionStatement(Statement):
-
     def __init__(self, token=None, expression=None):
         self.token = token
         self.expression = expression

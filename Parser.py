@@ -44,6 +44,7 @@ class Parser:
             stmt = self.parse_statement()
             if stmt != None:
                 program.statements.append(stmt)
+
             self.next_token()
         return program
 
@@ -54,7 +55,7 @@ class Parser:
             case T.RETURN:
                 return self.parse_return_statement()
             case _:
-                return None
+                return self.parse_expression_statement()
 
     def parse_return_statement(self):
         stmt = Ast.ReturnStatement(self.cur_token, None)
@@ -118,7 +119,6 @@ class Parser:
         return stmt
 
     def parse_expression(self, precedence):
-
         if self.cur_token._type in self.prefix_parse_fns:
             prefix = self.prefix_parse_fns[self.cur_token._type]
         else:
@@ -132,7 +132,7 @@ class Parser:
         return left_exp
 
     def parse_identifier(self):
-        return Ast.Identifier(self.cur_token, self.cur_token.literal)
+        return Ast.Identifier(token=self.cur_token, value=self.cur_token.literal)
 
 
 def parse_prefix_plus():
