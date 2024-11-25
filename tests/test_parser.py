@@ -132,31 +132,47 @@ def test_integer_literal_expression():
 
 
 test_case_prefix_expression_0 = [
-    ("!5;", "!", 5),
-    ("-15;", "-", 15),
+    {"input": "!5;", "operator": "!", "value": 5},
+    {"input": "-15;", "operator": "-", "value": 15},
 ]
 
 
-# @pytest.mark.parametrize("_input", test_case_prefix_expression_0)
-# def test_integer_literal_expression(_input):
-#     print(_input)
+@pytest.mark.parametrize("_input", test_case_prefix_expression_0)
+def test_parsing_prefix_expressions(_input):
 
-#     l = Lexer(_input, 0, 0, "")
-#     p = Parser(l)
+    l = Lexer(_input["input"], 0, 0, "")
+    p = Parser(l)
 
-#     program = p.parse_program()
+    program = p.parse_program()
 
-#     if len(program.statements) != 1:
-#         assert False, f"expected 1, got {len(program.statements)}."
+    if len(program.statements) != 1:
+        assert False, f"expected 1, got {len(program.statements)}."
 
-#     if p.errors:
-#         assert False, f"errors exist"
+    if p.errors:
+        assert False, f"errors exist"
 
-#     for k, i in enumerate(program.statements):
-#         if not isinstance(i, ExpressionStatement):
-#             assert False, f"should be of type `ExpressionStatement`, got {type(i)}."
+    stmt = program.statements[0]
+    if not isinstance(stmt, ExpressionStatement):
+        assert False, f"should be of type `ExpressionStatement`, got {type(i)}."
 
-#         if not isinstance(i.expression, PrefixExpression):
-#             assert False, f"should be of type `ExpressionStatement`, got {type(i)}."
+    if not isinstance(stmt.expression, PrefixExpression):
+        assert False, f"should be of type `PrefixExpression`, got {type(i)}."
 
-#         exp = i.expression
+    exp = stmt.expression
+
+    if exp.operator != _input["operator"]:
+        assert (
+            False
+        ), f"exp.operator should be of type `{_input['operator']}, got {exp.operator}`"
+
+    if not isinstance(exp.right, IntegerLiteral):
+        assert False, f"should be of type `IntegerLiteral`, got {type(exp)}."
+
+    integ = exp.right
+    if integ.value != _input["value"]:
+        assert False, f"literal.Value not `{_input['value']}`, got {integ.value}"
+
+    if integ.token_literal() != str(_input["value"]):
+        assert (
+            False
+        ), f"integ.token_literal() not `{_input['value']}`, got {integ.token_literal()}"

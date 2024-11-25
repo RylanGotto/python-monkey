@@ -14,6 +14,18 @@ class Order(Enum):
     CALL = auto()
 
 
+precedences = {
+    T.EQ: Order.EQUALS.value,
+    T.NOT_EQ: Order.EQUALS.value,
+    T.LT: Order.LESSGREATER.value,
+    T.GT: Order.LESSGREATER.value,
+    T.PLUS: Order.SUM.value,
+    T.MINUS: Order.SUM.value,
+    T.SLASH: Order.PRODUCT.value,
+    T.ASTERISK: Order.PRODUCT.value,
+}
+
+
 class Parser:
     l: Lexer.Lexer
     cur_token: T.Token
