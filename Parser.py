@@ -37,13 +37,22 @@ class Parser:
         self.peek_token = peek_token
         self.l = lexer
         self.errors = []
-        self.prefix_parse_fns = {}
-        self.infix_parse_fns = {}
 
+        self.prefix_parse_fns = {}
         self.register_prefix(T.IDENT, self.parse_identifier)
         self.register_prefix(T.INT, self.parse_interger_literal)
         self.register_prefix(T.BANG, self.parse_prefix_expression)
         self.register_prefix(T.MINUS, self.parse_prefix_expression)
+
+        self.infix_parse_fns = {}
+        self.register_infix(T.PLUS, self.parse_infix_expression)
+        self.register_infix(T.MINUS, self.parse_infix_expression)
+        self.register_infix(T.SLASH, self.parse_infix_expression)
+        self.register_infix(T.ASTERISK, self.parse_infix_expression)
+        self.register_infix(T.EQ, self.parse_infix_expression)
+        self.register_infix(T.NOT_EQ, self.parse_infix_expression)
+        self.register_infix(T.LT, self.parse_infix_expression)
+        self.register_infix(T.GT, self.parse_infix_expression)
 
         self.next_token()
         self.next_token()
@@ -134,15 +143,27 @@ class Parser:
         return stmt
 
     def parse_expression(self, precedence):
-        if self.cur_token._type in self.prefix_parse_fns:
-            prefix = self.prefix_parse_fns[self.cur_token._type]
-        else:
-            prefix = None
+        # Get the prefix parse function for the current token
 
-        if prefix == None:
+        prefix = self.prefix_parse_fns.get(self.cur_token._type)
+        if not prefix:
+            self.no_prefix_parse_fn_error(self.cur_token._type)
             return None
 
+        # Initialize left_exp using the prefix parse function
         left_exp = prefix()
+
+        # Process infix parse functions while conditions are met
+        while (
+            not self.peek_token_is(T.SEMICOLON) and precedence < self.peek_precedence()
+        ):
+            infix = self.infix_parse_fns.get(self.peek_token._type)
+            if not infix:
+                return left_exp
+
+            self.next_token()
+
+            left_exp = infix(left_exp)
         return left_exp
 
     def parse_identifier(self):
@@ -162,20 +183,32 @@ class Parser:
     def no_prefix_parse_fn_error(self, _type):
         self.errors.append(f"no prefix parse func for {_type}")
 
-    def parse_expression(self, precedence):
-        prefix = self.prefix_parse_fns[self.cur_token._type]
-        if prefix == None:
-            self.no_prefix_parse_fn_error(self.cur_token._type)
-            return None
-        left_exp = prefix()
-
-        return left_exp
-
     def parse_prefix_expression(self):
         expression = Ast.PrefixExpression(self.cur_token, self.cur_token.literal, None)
         self.next_token()
         expression.right = self.parse_expression(Order.PREFIX.value)
         return expression
+
+    def parse_infix_expression(self, left):
+        expression = Ast.InfixExpression(
+            self.cur_token, left, self.cur_token.literal, None
+        )
+
+        precedence = self.cur_precendence()
+        self.next_token()
+        expression.right = self.parse_expression(precedence)
+
+        return expression
+
+    def peek_precedence(self):
+        if p := precedences.get(self.peek_token._type):
+            return p
+        return Order.LOWEST.value
+
+    def cur_precendence(self):
+        if p := precedences[self.cur_token._type]:
+            return p
+        return Order.LOWEST.value
 
 
 def parse_prefix_plus():
