@@ -65,6 +65,15 @@ class Identifier(Expression):
 
 
 @dataclass
+class IntegerLiteral(Expression):
+    token: Tokens.Token
+    value: int
+
+    def string(self):
+        return self.value
+
+
+@dataclass
 class LetStatement(Statement):
     token: Tokens.Token
     name: Identifier
@@ -90,3 +99,13 @@ class ExpressionStatement(Statement):
 
     def string(self):
         return f"token: {self.token}, expression: {self.expression}"
+
+
+class PrefixExpression(Expression):
+    def __init__(self, token, operator, right):
+        self.token = token
+        self.operator = operator
+        self.right = right
+
+    def string(self):
+        return f"({self.operator}{self.right.string()})"

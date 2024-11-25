@@ -97,3 +97,66 @@ def test_identifier_expression():
             assert (
                 False
             ), f"ident.token_literal() not `foobar`, got {ident.token_literal()}"
+
+
+def test_integer_literal_expression():
+    _input = "5;"
+
+    l = Lexer(_input, 0, 0, "")
+    p = Parser(l)
+
+    program = p.parse_program()
+
+    if len(program.statements) != 1:
+        assert False, f"expected 1, got {len(program.statements)}."
+
+    if p.errors:
+        assert False, f"errors exist"
+
+    stmt = program.statements[0]
+
+    if not isinstance(stmt, ExpressionStatement):
+        assert False, f"should be of type `ExpressionStatement`, got {type(i)}."
+
+    if not isinstance(stmt.expression, IntegerLiteral):
+        assert False, f"should be of type `ExpressionStatement`, got {type(i)}."
+
+    literal = stmt.expression
+    if literal.value != 5:
+        assert False, f"literal.Value not `foobar`, got {literal.value}"
+
+    if literal.token_literal() != "5":
+        assert (
+            False
+        ), f"literal.token_literal() not `foobar`, got {literal.token_literal()}"
+
+
+test_case_prefix_expression_0 = [
+    ("!5;", "!", 5),
+    ("-15;", "-", 15),
+]
+
+
+# @pytest.mark.parametrize("_input", test_case_prefix_expression_0)
+# def test_integer_literal_expression(_input):
+#     print(_input)
+
+#     l = Lexer(_input, 0, 0, "")
+#     p = Parser(l)
+
+#     program = p.parse_program()
+
+#     if len(program.statements) != 1:
+#         assert False, f"expected 1, got {len(program.statements)}."
+
+#     if p.errors:
+#         assert False, f"errors exist"
+
+#     for k, i in enumerate(program.statements):
+#         if not isinstance(i, ExpressionStatement):
+#             assert False, f"should be of type `ExpressionStatement`, got {type(i)}."
+
+#         if not isinstance(i.expression, PrefixExpression):
+#             assert False, f"should be of type `ExpressionStatement`, got {type(i)}."
+
+#         exp = i.expression

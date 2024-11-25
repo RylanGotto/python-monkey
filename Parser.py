@@ -28,7 +28,10 @@ class Parser:
         self.prefix_parse_fns = {}
         self.infix_parse_fns = {}
 
-        self.prefix_parse_fns[T.IDENT] = self.parse_identifier
+        self.register_prefix(T.IDENT, self.parse_identifier)
+        self.register_prefix(T.INT, self.parse_interger_literal)
+        self.register_prefix(T.BANG, self.parse_prefix_expression)
+        self.register_prefix(T.MINUS, self.parse_prefix_expression)
 
         self.next_token()
         self.next_token()
@@ -128,11 +131,39 @@ class Parser:
             return None
 
         left_exp = prefix()
-
         return left_exp
 
     def parse_identifier(self):
         return Ast.Identifier(token=self.cur_token, value=self.cur_token.literal)
+
+    def parse_interger_literal(self):
+        lit = Ast.IntegerLiteral(self.cur_token, 0)
+
+        try:
+            value = int(self.cur_token.literal)
+        except Exception as e:
+            self.errors.append(e)
+
+        lit.value = value
+        return lit
+
+    def no_prefix_parse_fn_error(self, _type):
+        self.errors.append(f"no prefix parse func for {_type}")
+
+    def parse_expression(self, precedence):
+        prefix = self.prefix_parse_fns[self.cur_token._type]
+        if prefix == None:
+            self.no_prefix_parse_fn_error(self.cur_token._type)
+            return None
+        left_exp = prefix()
+
+        return left_exp
+
+    def parse_prefix_expression(self):
+        expression = Ast.PrefixExpression(self.cur_token, self.cur_token.literal, None)
+        self.next_token()
+        expression.right = self.parse_expression(Order.PREFIX.value)
+        return expression
 
 
 def parse_prefix_plus():
