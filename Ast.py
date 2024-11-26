@@ -129,7 +129,10 @@ class Program(Node):
         Returns:
             str: The string representation of the program.
         """
-        return self.statements[0].string() if self.statements else ""
+        out = []
+        for s in self.statements:
+            out.append(s.string())  # Call `str(s)` to mimic Go's `s.String()`
+        return "".join(out)
 
 
 @dataclass

@@ -196,6 +196,7 @@ class Parser:
 
         precedence = self.cur_precendence()
         self.next_token()
+
         expression.right = self.parse_expression(precedence)
 
         return expression
@@ -217,3 +218,10 @@ def parse_prefix_plus():
 
 def parse_infix_plus():
     pass
+
+
+def reverse_lookup(enum_class, value):
+    for member in enum_class:
+        if member.value == value:
+            return member
+    raise ValueError(f"{value} is not a valid value for {enum_class.__name__}")

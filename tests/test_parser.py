@@ -229,8 +229,8 @@ test_case_operator_precendence_parsing_0 = [
     {"input": "a * b * c", "expected": "((a * b) * c)"},
     {"input": "a * b / c", "expected": "((a * b) / c)"},
     {"input": "a + b / c", "expected": "(a + (b / c))"},
-    {"input": "a + b c + d / e - f", "expected": "(((a + (b * c)) + (d / e)) - f)"},
-    {"input": "3 + 4; -5 * 5", "expected": "(3 + 4)((-5) * 5)"},
+    {"input": "a + b * c + d / e - f", "expected": "(((a + (b * c)) + (d / e)) - f)"},
+    {"input": "3 + 4; -5 * 5;", "expected": "(3 + 4)((-5) * 5)"},
     {"input": "5 > 4 == 3 < 4", "expected": "((5 > 4) == (3 < 4))"},
     {"input": "5 < 4 != 3 > 4", "expected": "((5 < 4) != (3 > 4))"},
     {
@@ -247,8 +247,9 @@ def test_case_operator_precendence_parsing(_input):
 
     program = p.parse_program()
     if p.errors:
-        assert f"errors should not exist"
+        assert False, f"errors should not exist"
 
     actual = program.string()
+
     if actual != _input["expected"]:
-        assert f"expected{_input['expected']}, got{actual}"
+        assert False, f"expected={_input['expected']}, got={actual}"
