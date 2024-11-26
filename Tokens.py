@@ -9,7 +9,7 @@ COMMA = "COMMA"
 ELSE = "else"
 EOF = "EOF"
 EQ = "EQ"
-FALSE = "FALSE"
+FALSE = "false"
 FUNCTION = "FUNCTION"
 GT = "GT"
 IDENT = "IDENT"
@@ -31,7 +31,7 @@ RPAREN = "RPAREN"
 SEMICOLON = "SEMICOLON"
 SLASH = "SLASH"
 STRING = "STRING"
-TRUE = "TRUE"
+TRUE = "true"
 
 # Look-up dictionary for token values
 tokens = {
@@ -42,7 +42,7 @@ tokens = {
     "COMMA": ",",
     "EOF": "EOF",
     "EQ": "==",
-    "FALSE": "FALSE",
+    "false": "false",
     "GT": ">",
     "IDENT": "IDENT",
     "ILLEGAL": "ILLEGAL",

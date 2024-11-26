@@ -67,6 +67,8 @@ class Parser:
         self.register_prefix(T.INT, self.parse_interger_literal)
         self.register_prefix(T.BANG, self.parse_prefix_expression)
         self.register_prefix(T.MINUS, self.parse_prefix_expression)
+        self.register_prefix(T.TRUE, self.parse_boolean)
+        self.register_prefix(T.FALSE, self.parse_boolean)
 
         # Register infix parse functions
         self.infix_parse_fns = {}
@@ -378,6 +380,9 @@ class Parser:
         if p := precedences[self.cur_token._type]:
             return p
         return Order.LOWEST.value
+
+    def parse_boolean(self):
+        return Ast.Boolean(self.cur_token, self.cur_token_is(T.TRUE))
 
 
 def parse_prefix_plus():

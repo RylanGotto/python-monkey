@@ -131,7 +131,7 @@ class Program(Node):
         """
         out = []
         for s in self.statements:
-            out.append(s.string())  # Call `str(s)` to mimic Go's `s.String()`
+            out.append(str(s.string()))  # Call `str(s)` to mimic Go's `s.String()`
         return "".join(out)
 
 
@@ -308,3 +308,12 @@ class InfixExpression(Expression):
             str: The infix expression as a string.
         """
         return f"({self.left.string()} {self.operator} {self.right.string()})"
+
+
+@dataclass
+class Boolean(Expression):
+    token: Tokens.Token
+    value: bool
+
+    def string(self):
+        return "true" if self.value else "false"
