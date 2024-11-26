@@ -14,7 +14,6 @@ class Lexer:
         token = None
 
         self.skip_whitespace()
-
         match self.ch:
             case "=":
                 if self.peek_char() == "=":
@@ -56,7 +55,7 @@ class Lexer:
                 token = new_token(LT, self.ch)
             case ">":
                 token = new_token(GT, self.ch)
-            case 0:
+            case 0 | "0":
                 token = new_token(EOF, "")
             case _:
                 if is_letter(self.ch):
@@ -93,7 +92,7 @@ class Lexer:
 
     def read_number(self):
         postion = self.position
-        while is_digit(self.ch):
+        while is_digit(self.ch) and self.read_position <= len(self._input):
             self.read_char()
         return self._input[postion : self.position]
 

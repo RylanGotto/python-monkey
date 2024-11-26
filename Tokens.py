@@ -74,12 +74,19 @@ class Token:
     literal: str
 
 
+import time
+
+
 def is_digit(ch):
-    return "0" <= ch and ch <= "9"
+    return "0" <= str(ch) and str(ch) <= "9"
 
 
 def is_letter(ch):
-    return ("a" <= ch and ch <= "z") or ("A" <= ch and ch <= "Z") or ch == "_"
+    return (
+        ("a" <= str(ch) and str(ch) <= "z")
+        or ("A" <= str(ch) and str(ch) <= "Z")
+        or str(ch) == "_"
+    )
 
 
 def new_token(_type, literal):
