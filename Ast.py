@@ -313,8 +313,17 @@ class InfixExpression(Expression):
 @dataclass
 class Boolean(Expression):
     token: Tokens.Token
-    value: bool
+    _value: bool
+
+    @property
+    def value(self):
+        return "true" if self._value else "false"
+
+    @value.setter
+    def value(self, value):
+        print(1)
+        self._value = value
 
     def string(self):
-        print(self.value)
-        return "true" if self.value else "false"
+        print(2)
+        return "true" if self._value else "false"
