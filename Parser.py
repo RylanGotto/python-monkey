@@ -69,6 +69,7 @@ class Parser:
         self.register_prefix(T.MINUS, self.parse_prefix_expression)
         self.register_prefix(T.TRUE, self.parse_boolean)
         self.register_prefix(T.FALSE, self.parse_boolean)
+        self.register_prefix(T.LPAREN, self.parse_grouped_expression)
 
         # Register infix parse functions
         self.infix_parse_fns = {}
@@ -279,8 +280,8 @@ class Parser:
         left_exp = prefix()
 
         # Process infix parse functions while conditions are met
-        while (
-            not self.peek_token_is(T.SEMICOLON) and precedence < self.peek_precedence()
+        while not self.peek_token_is(T.SEMICOLON) and str(precedence) < str(
+            self.peek_precedence()
         ):
             infix = self.infix_parse_fns.get(self.peek_token._type)
             if not infix:
@@ -383,6 +384,16 @@ class Parser:
 
     def parse_boolean(self):
         return Ast.Boolean(self.cur_token, self.cur_token_is(T.TRUE))
+
+    def parse_grouped_expression(self):
+        self.next_token()
+
+        exp = self.parse_expression(Order.LOWEST.value)
+
+        if not self.expect_peek(T.RPAREN):
+            return None
+
+        return exp
 
 
 def parse_prefix_plus():

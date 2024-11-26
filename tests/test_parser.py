@@ -254,27 +254,47 @@ def test_parseing_infix_expression(_input: dict[str, str | int]):
 
 
 test_case_operator_precendence_parsing_0 = [
-    # {"input": "-a * b", "expected": "((-a) * b)"},
-    # {"input": "!-a", "expected": "(!(-a))"},
-    # {"input": "a + b + c", "expected": "((a + b) + c)"},
-    # {"input": "a + b - c", "expected": "((a + b) - c)"},
-    # {"input": "a * b * c", "expected": "((a * b) * c)"},
-    # {"input": "a * b / c", "expected": "((a * b) / c)"},
-    # {"input": "a + b / c", "expected": "(a + (b / c))"},
-    # {"input": "a + b * c + d / e - f", "expected": "(((a + (b * c)) + (d / e)) - f)"},
-    # {"input": "3 + 4; -5 * 5;", "expected": "(3 + 4)((-5) * 5)"},
-    # {"input": "5 > 4 == 3 < 4", "expected": "((5 > 4) == (3 < 4))"},
-    # {"input": "5 < 4 != 3 > 4", "expected": "((5 < 4) != (3 > 4))"},
-    # {
-    #     "input": "3 + 4 * 5 == 3 * 1 + 4 * 5",
-    #     "expected": "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
-    # },
-    # {"input": "true", "expected": "true"},
-    # {"input": "false", "expected": "false"},
+    {"input": "-a * b", "expected": "((-a) * b)"},
+    {"input": "!-a", "expected": "(!(-a))"},
+    {"input": "a + b + c", "expected": "((a + b) + c)"},
+    {"input": "a + b - c", "expected": "((a + b) - c)"},
+    {"input": "a * b * c", "expected": "((a * b) * c)"},
+    {"input": "a * b / c", "expected": "((a * b) / c)"},
+    {"input": "a + b / c", "expected": "(a + (b / c))"},
+    {"input": "a + b * c + d / e - f", "expected": "(((a + (b * c)) + (d / e)) - f)"},
+    {"input": "3 + 4; -5 * 5;", "expected": "(3 + 4)((-5) * 5)"},
+    {"input": "5 > 4 == 3 < 4", "expected": "((5 > 4) == (3 < 4))"},
+    {"input": "5 < 4 != 3 > 4", "expected": "((5 < 4) != (3 > 4))"},
+    {
+        "input": "3 + 4 * 5 == 3 * 1 + 4 * 5",
+        "expected": "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+    },
+    {"input": "true", "expected": "true"},
+    {"input": "false", "expected": "false"},
     {"input": "3 > 5 == false", "expected": "((3 > 5) == false)"},
     {
         "input": "3 < 5 == true",
         "expected": "((3 < 5) == true)",
+    },
+    {
+        "input": "1 + (2 + 3) + 4",
+        "expected": "((1 + (2 + 3)) + 4)",
+    },
+    {
+        "input": "(5 + 5) * 2",
+        "expected": "((5 + 5) * 2)",
+    },
+    {
+        "input": "2 / (5 + 5)",
+        "expected": "(2 / (5 + 5))",
+    },
+    {
+        "input": "-(5 + 5)",
+        "expected": "(-(5 + 5))",
+    },
+    {
+        "input": "!(true == true)",
+        "expected": "(!(true == true))",
     },
 ]
 
@@ -294,6 +314,7 @@ def test_case_operator_precendence_parsing(_input: dict[str, str]):
 
     program = p.parse_program()
     if p.errors:
+        print(p.errors)
         assert False, f"errors should not exist"
 
     actual = program.string()

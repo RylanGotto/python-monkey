@@ -316,4 +316,5 @@ class Boolean(Expression):
     value: bool
 
     def string(self):
+        print(self.value)
         return "true" if self.value else "false"
