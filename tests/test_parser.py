@@ -157,8 +157,8 @@ def test_integer_literal_expression():
 
 
 test_case_prefix_expression_0 = [
-    # {"input": "!5;", "operator": "!", "value": 5},
-    # {"input": "-15;", "operator": "-", "value": 15},
+    {"input": "!5;", "operator": "!", "value": 5},
+    {"input": "-15;", "operator": "-", "value": 15},
     {"input": "!true;", "operator": "!", "value": "true"},
     {"input": "!false;", "operator": "!", "value": "false"},
 ]
@@ -198,19 +198,19 @@ def test_parsing_prefix_expressions(_input: dict[str, str | int]):
         assert (
             False
         ), f"exp.operator should be of type `{_input['operator']}, got {exp.operator}`"
-    print(exp.right)
+
     _test_literal_expression(exp.right, _input["value"])
 
 
 test_case_infix_expression_0 = [
-    # {"input": "5 + 5;", "left": 5, "operator": "+", "right": 5},
-    # {"input": "5 - 5;", "left": 5, "operator": "-", "right": 5},
-    # {"input": "5 * 5;", "left": 5, "operator": "*", "right": 5},
-    # {"input": "5 / 5;", "left": 5, "operator": "/", "right": 5},
-    # {"input": "5 > 5;", "left": 5, "operator": ">", "right": 5},
-    # {"input": "5 < 5;", "left": 5, "operator": "<", "right": 5},
-    # {"input": "5 == 5;", "left": 5, "operator": "==", "right": 5},
-    # {"input": "5 != 5;", "left": 5, "operator": "!=", "right": 5},
+    {"input": "5 + 5;", "left": 5, "operator": "+", "right": 5},
+    {"input": "5 - 5;", "left": 5, "operator": "-", "right": 5},
+    {"input": "5 * 5;", "left": 5, "operator": "*", "right": 5},
+    {"input": "5 / 5;", "left": 5, "operator": "/", "right": 5},
+    {"input": "5 > 5;", "left": 5, "operator": ">", "right": 5},
+    {"input": "5 < 5;", "left": 5, "operator": "<", "right": 5},
+    {"input": "5 == 5;", "left": 5, "operator": "==", "right": 5},
+    {"input": "5 != 5;", "left": 5, "operator": "!=", "right": 5},
     {"input": "true == true", "left": "true", "operator": "==", "right": "true"},
     {"input": "true != false", "left": "true", "operator": "!=", "right": "false"},
     {"input": "false == false", "left": "false", "operator": "==", "right": "false"},
@@ -249,11 +249,7 @@ def test_parseing_infix_expression(_input: dict[str, str | int]):
 
     exp = stmt.expression
 
-    infix_left = exp.left
-    _test_literal_expression(infix_left, _input["left"])
-
-    infix_right = exp.right
-    _test_literal_expression(infix_right, _input["right"])
+    _test_infix_expression(exp, exp.left.value, exp.operator, exp.right.value)
 
 
 test_case_operator_precendence_parsing_0 = [
@@ -317,7 +313,6 @@ def test_case_operator_precendence_parsing(_input: dict[str, str]):
 
     program = p.parse_program()
     if p.errors:
-        print(p.errors)
         assert False, f"errors should not exist"
 
     actual = program.string()
@@ -340,6 +335,7 @@ def _test_integer_literal(exp: Expression, value: int):
     Raises:
         AssertionError: If the value of the expression does not match the expected value.
     """
+
     if not isinstance(exp, IntegerLiteral):
         assert False, f"should be of type `IntegerLiteral`, got {type(exp)}."
 
@@ -348,15 +344,18 @@ def _test_integer_literal(exp: Expression, value: int):
 
     if exp.token_literal() != str(value):
         assert False, f"exp.token_literal() not `{value}`, got {exp.token_literal()}"
+    return True
 
 
 def _test_literal_expression(exp, expected):
-    if isinstance(exp, int):
+    print(exp, expected)
+    if isinstance(expected, int):
         return _test_integer_literal(exp, expected)
-    elif isinstance(exp, str):
-        return _test_identifier(exp, expected)
-    elif isinstance(exp, Boolean):
+    elif expected == "true" or "false":
         return _test_boolean_literal(exp, expected)
+    elif isinstance(expected, str):
+        return _test_identifier(exp, expected)
+
     else:
         assert False, "Invalid literal expression"
 
@@ -387,9 +386,11 @@ def _test_boolean_literal(exp, value):
         assert (
             False
         ), f"ident.token_literal() not `{value}`, got {ident.token_literal()}"
+    return True
 
 
 def _test_infix_expression(exp, left, operator, right):
+
     if not isinstance(exp, InfixExpression):
         assert False, f"exp is not InfixExpression. got={type(exp)}({exp})"
 

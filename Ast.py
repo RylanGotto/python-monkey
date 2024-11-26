@@ -312,18 +312,87 @@ class InfixExpression(Expression):
 
 @dataclass
 class Boolean(Expression):
+    """
+    Represents a boolean expression node in the Abstract Syntax Tree (AST).
+    This class encapsulates a boolean value (`true` or `false`) and its corresponding token.
+
+    Attributes:
+        token (Tokens.Token): The token representing the boolean value (`true` or `false`).
+        _value (bool): The boolean value (True or False).
+    """
+
     token: Tokens.Token
     _value: bool
 
     @property
-    def value(self):
+    def value(self) -> str:
+        """
+        Gets the string representation of the boolean value.
+
+        Returns:
+            str: "true" if the boolean value is True, otherwise "false".
+        """
         return "true" if self._value else "false"
 
     @value.setter
-    def value(self, value):
-        print(1)
+    def value(self, value: bool) -> None:
+        """
+        Sets the boolean value.
+
+        Args:
+            value (bool): The new boolean value to set.
+        """
         self._value = value
 
-    def string(self):
-        print(2)
+    def string(self) -> str:
+        """
+        Converts the boolean expression into its string representation.
+
+        Returns:
+            str: "true" if the boolean value is True, otherwise "false".
+        """
         return "true" if self._value else "false"
+
+
+@dataclass
+class BlockStatement(Statement):
+    token: Tokens.Token
+    statements: List[Statement]
+
+    def statement_node(self):
+        return super().statement_node()
+
+    def token_literal(self):
+        return super().token_literal()
+
+    def string(self):
+        out = []
+        for i in self.statements:
+            out.append(i.string())
+
+        return "".join(out)
+
+
+@dataclass
+class IfExpression(Expression):
+    token: Tokens.Token
+    condition: Expression
+    consequence: BlockStatement
+    alternative: BlockStatement
+
+    def expression_node(self):
+        return super().expression_node()
+
+    def token_literal(self):
+        return super().token_literal()
+
+    def string(self):
+        out = []
+        out.append("if")
+        out.append(self.condition.string())
+        out.append(" ")
+        out.append(self.consequence.string())
+        if self.alternative != None:
+            out.append("else ")
+            out.append(self.consequence.string())
+        return "".join(out)
