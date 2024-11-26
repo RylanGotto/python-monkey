@@ -4,6 +4,7 @@ from monkey.Ast import *
 from monkey.Lexer import Lexer
 from monkey.Parser import Parser
 
+# Test case for multiple let statements
 test_case_let_state_0 = """
     let x = 5;
     let y = 10;
@@ -14,9 +15,18 @@ test_data = [(test_case_let_state_0, test_case_let_state_0_expected)]
 
 
 @pytest.mark.parametrize("_input, expected", test_data)
-def test_let_statement(_input, expected):
+def test_let_statement(_input: str, expected: list[str]):
+    """
+    Test the parsing of let statements.
 
-    l = Lexer(_input, 0, 0, "")
+    This function tests if the 'let' statements are correctly parsed by checking the number of
+    parsed statements, the token literals, and the names of the variables defined in the let statements.
+
+    Args:
+        _input (str): The input string containing the source code to be parsed.
+        expected (list[str]): The expected list of variable names declared in 'let' statements.
+    """
+    l = Lexer(_input)
     p = Parser(l)
 
     program = p.parse_program()
@@ -45,12 +55,21 @@ def test_let_statement(_input, expected):
 
 
 def test_return():
+    """
+    Test parsing of return statements.
+
+    This function tests if return statements are correctly parsed by checking the number of return statements
+    and ensuring that the statement types match `ReturnStatement`.
+
+    Args:
+        None
+    """
     _input = """
         return 5;
         return 10;
         return 993322;
     """
-    l = Lexer(_input, 0, 0, "")
+    l = Lexer(_input)
     p = Parser(l)
 
     program = p.parse_program()
@@ -69,9 +88,18 @@ def test_return():
 
 
 def test_identifier_expression():
+    """
+    Test parsing of identifier expressions.
+
+    This function tests if identifier expressions are correctly parsed and ensure that the parsed identifier
+    matches the expected value.
+
+    Args:
+        None
+    """
     _input = "foobar;"
 
-    l = Lexer(_input, 0, 0, "")
+    l = Lexer(_input)
     p = Parser(l)
 
     program = p.parse_program()
@@ -100,9 +128,17 @@ def test_identifier_expression():
 
 
 def test_integer_literal_expression():
+    """
+    Test parsing of integer literal expressions.
+
+    This function tests if integer literals are correctly parsed and ensure the parsed value matches the expected integer.
+
+    Args:
+        None
+    """
     _input = "5;"
 
-    l = Lexer(_input, 0, 0, "")
+    l = Lexer(_input)
     p = Parser(l)
 
     program = p.parse_program()
@@ -138,9 +174,16 @@ test_case_prefix_expression_0 = [
 
 
 @pytest.mark.parametrize("_input", test_case_prefix_expression_0)
-def test_parsing_prefix_expressions(_input):
+def test_parsing_prefix_expressions(_input: dict[str, str | int]):
+    """
+    Test parsing of prefix expressions.
 
-    l = Lexer(_input["input"], 0, 0, "")
+    This function tests if prefix expressions (e.g. `!5`, `-15`) are correctly parsed by checking the operator and value.
+
+    Args:
+        _input (dict[str, str | int]): A dictionary containing the input string, operator, and value to be tested.
+    """
+    l = Lexer(_input["input"])
     p = Parser(l)
 
     program = p.parse_program()
@@ -181,9 +224,17 @@ test_case_infix_expression_0 = [
 
 
 @pytest.mark.parametrize("_input", test_case_infix_expression_0)
-def test_parseing_infix_expression(_input):
+def test_parseing_infix_expression(_input: dict[str, str | int]):
+    """
+    Test parsing of infix expressions.
 
-    l = Lexer(_input["input"], 0, 0, "")
+    This function tests if infix expressions (e.g. `5 + 5`, `5 == 5`) are correctly parsed by checking the left operand, operator,
+    and right operand.
+
+    Args:
+        _input (dict[str, str | int]): A dictionary containing the input string, left operand, operator, and right operand.
+    """
+    l = Lexer(_input["input"])
     p = Parser(l)
 
     program = p.parse_program()
@@ -210,7 +261,19 @@ def test_parseing_infix_expression(_input):
     _test_integer_literal(infix_right, _input["right"])
 
 
-def _test_integer_literal(exp, value):
+def _test_integer_literal(exp: Expression, value: int):
+    """
+    Helper function to test integer literal values.
+
+    This function checks if the given expression is an `IntegerLiteral` and if its value matches the expected value.
+
+    Args:
+        exp (Expression): The expression to check.
+        value (int): The expected value for the integer literal.
+
+    Raises:
+        AssertionError: If the value of the expression does not match the expected value.
+    """
     if not isinstance(exp, IntegerLiteral):
         assert False, f"should be of type `IntegerLiteral`, got {type(exp)}."
 
@@ -241,8 +304,16 @@ test_case_operator_precendence_parsing_0 = [
 
 
 @pytest.mark.parametrize("_input", test_case_operator_precendence_parsing_0)
-def test_case_operator_precendence_parsing(_input):
-    l = Lexer(_input["input"], 0, 0, "")
+def test_case_operator_precendence_parsing(_input: dict[str, str]):
+    """
+    Test parsing of operator precedence.
+
+    This function tests if the operator precedence is correctly parsed and if the actual parsed result matches the expected result.
+
+    Args:
+        _input (dict[str, str]): A dictionary containing the input string and the expected parsed output.
+    """
+    l = Lexer(_input["input"])
     p = Parser(l)
 
     program = p.parse_program()

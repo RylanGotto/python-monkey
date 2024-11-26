@@ -6,7 +6,7 @@ from .Parser import Parser
 def main():
     _input = "foobar;"
 
-    l = Lexer(_input, 0, 0, "")
+    l = Lexer(_input)
     p = Parser(l)
 
     program = p.parse_program()
