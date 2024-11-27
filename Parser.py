@@ -70,6 +70,7 @@ class Parser:
         self.register_prefix(T.TRUE, self.parse_boolean)
         self.register_prefix(T.FALSE, self.parse_boolean)
         self.register_prefix(T.LPAREN, self.parse_grouped_expression)
+        self.register_prefix(T.IF, self.parse_if_expression)
 
         # Register infix parse functions
         self.infix_parse_fns = {}
@@ -394,6 +395,44 @@ class Parser:
             return None
 
         return exp
+
+    def parse_if_expression(self):
+        expression = Ast.IfExpression(self.cur_token, None, None, None)
+
+        if not self.expect_peek(T.LPAREN):
+            return None
+
+        self.next_token()
+
+        expression.condition = self.parse_expression(Order.LOWEST.value)
+
+        if not self.expect_peek(T.RPAREN):
+            return None
+
+        if not self.expect_peek(T.LBRACE):
+            return None
+
+        expression.consequence = self.parse_block_statement()
+
+        if self.peek_token_is(T.ELSE):
+            self.next_token()
+
+            if not self.expect_peek(T.LBRACE):
+                return None
+            expression.alternative = self.parse_block_statement()
+
+        return expression
+
+    def parse_block_statement(self):
+        block = Ast.BlockStatement(self.cur_token, [])
+        self.next_token()
+
+        while not self.cur_token_is(T.RBRACE) and not self.cur_token_is(T.EOF):
+            if stmt := self.parse_statement():
+                block.statements.append(stmt)
+            self.next_token()
+
+        return block
 
 
 def parse_prefix_plus():

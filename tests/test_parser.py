@@ -321,6 +321,105 @@ def test_case_operator_precendence_parsing(_input: dict[str, str]):
         assert False, f"expected={_input['expected']}, got={actual}"
 
 
+def test_if_expression():
+    _input = "if (x < y) { x }"
+
+    l = Lexer(_input)
+    p = Parser(l)
+
+    program = p.parse_program()
+    if p.errors:
+        assert False, f"errors should not exist {p.errors}"
+
+    if len(program.statements) != 1:
+        assert False, f"expected 1, got {len(program.statements)}."
+
+    stmt = program.statements[0]
+
+    if not isinstance(stmt, ExpressionStatement):
+        assert False, f"should be of type `ExpressionStatement`, got {type(stmt)}."
+
+    if not isinstance(stmt.expression, IfExpression):
+        assert False, f"should be of type `IfExpression`, got {type(stmt)}"
+
+    exp = stmt.expression
+
+    if not _test_infix_expression(exp.condition, "x", "<", "y"):
+        assert False, f"failed infix expression"
+
+    if len(exp.consequence.statements) != 1:
+        assert (
+            False
+        ), f"consequence is not 1 statement, got {len(exp.consequence.statements)}"
+
+    if not isinstance(exp.consequence.statements[0], ExpressionStatement):
+        assert (
+            False
+        ), f"Statement is not of type `ExpressionStatement` got {type(exp.consequence.statements[0])}"
+
+    consequence = exp.consequence.statements[0]
+
+    if not _test_identifier(consequence.expression, "x"):
+        assert False, f"_test identifier failed"
+
+    if exp.alternative != None:
+        assert False, f"exp.alternative was not nil. got {exp.alternative}"
+
+
+def test_if_else_expression():
+    _input = "if (x < y) { x } else { y }"
+
+    l = Lexer(_input)
+    p = Parser(l)
+
+    program = p.parse_program()
+    if p.errors:
+        assert False, f"errors should not exist {p.errors}"
+
+    if len(program.statements) != 1:
+        assert False, f"expected 1, got {len(program.statements)}."
+
+    stmt = program.statements[0]
+
+    if not isinstance(stmt, ExpressionStatement):
+        assert False, f"should be of type `ExpressionStatement`, got {type(stmt)}."
+
+    if not isinstance(stmt.expression, IfExpression):
+        assert False, f"should be of type `IfExpression`, got {type(stmt)}"
+
+    exp = stmt.expression
+    if not _test_infix_expression(exp.condition, "x", "<", "y"):
+        assert False, f"failed infix expression"
+
+    if len(exp.consequence.statements) != 1:
+        assert (
+            False
+        ), f"consequence is not 1 statement, got {len(exp.consequence.statements)}"
+
+    if not isinstance(exp.consequence.statements[0], ExpressionStatement):
+        assert (
+            False
+        ), f"Statement is not of type `ExpressionStatement` got {type(exp.consequence.statements[0])}"
+
+    consequence = exp.consequence.statements[0]
+
+    if not _test_identifier(consequence.expression, "x"):
+        assert False, f"_test identifier failed"
+
+    if exp.alternative == None:
+        assert False, f"exp.alternative should not be None."
+
+    if not isinstance(exp.alternative.statements[0], ExpressionStatement):
+        assert (
+            False
+        ), f"Statement is not of type `ExpressionStatement` got {type(exp.alternative.statements[0])}"
+
+    alternative = exp.alternative.statements[0]
+
+    if not _test_identifier(alternative.expression, "y"):
+        assert False, f"_test identifier failed"
+
+
 ################################ HELPERS
 def _test_integer_literal(exp: Expression, value: int):
     """
@@ -348,14 +447,13 @@ def _test_integer_literal(exp: Expression, value: int):
 
 
 def _test_literal_expression(exp, expected):
-    print(exp, expected)
+
     if isinstance(expected, int):
         return _test_integer_literal(exp, expected)
-    elif expected == "true" or "false":
+    elif expected == "true" or "false" and isinstance(exp, Boolean):
         return _test_boolean_literal(exp, expected)
     elif isinstance(expected, str):
         return _test_identifier(exp, expected)
-
     else:
         assert False, "Invalid literal expression"
 
@@ -372,9 +470,11 @@ def _test_identifier(exp, value):
         assert (
             False
         ), f"ident.token_literal() not `{value}`, got {ident.token_literal()}"
+    return True
 
 
 def _test_boolean_literal(exp, value):
+
     if not isinstance(exp, Boolean):
         assert False, f"should be of type `Boolean`, got {type(exp)}."
 
@@ -401,4 +501,5 @@ def _test_infix_expression(exp, left, operator, right):
         assert f"exp.operator is not '{operator}'. got={exp.operator}"
 
     if not _test_literal_expression(exp.right, right):
-        return False, "literal_expression has failed"
+        assert False, "literal_expression has failed"
+    return True
