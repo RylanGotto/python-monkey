@@ -1,6 +1,7 @@
 import os
 
 from . import Lexer, Parser
+from .Evaluator import Ev
 
 PROMPT = ">> "
 
@@ -22,13 +23,16 @@ def start():
         # Initialize the Lexer with the input string
         L = Lexer.Lexer(inp)
         parser = Parser.Parser(L)
+        ev = Ev()
 
         program = parser.parse_program()
         if len(parser.errors) != 0:
             print_parser_errors(parser.errors)
             continue
 
-        print(program.string() + "\n")
+        evaluated = ev.eval(program)
+        if evaluated is not None:
+            print(evaluated.inspect(), "\n")
 
 
 def print_parser_errors(errors):

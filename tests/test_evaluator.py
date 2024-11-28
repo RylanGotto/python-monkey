@@ -1,6 +1,6 @@
 import pytest
 
-from monkey.Evaluator import Evaluator
+from monkey.Evaluator import Ev
 from monkey.Lexer import Lexer
 from monkey.Object import *
 from monkey.Parser import Parser
@@ -18,7 +18,7 @@ def _test_eval(input):
     l = Lexer(input)
     p = Parser(l)
     program = p.parse_program()
-    ev = Evaluator()
+    ev = Ev()
     return ev.eval(program)
 
 

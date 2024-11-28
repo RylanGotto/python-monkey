@@ -1,7 +1,7 @@
 from . import Ast, Object
 
 
-class Evaluator:
+class Ev:
     def eval(self, node):
         match type(node):
             case Ast.Program:
