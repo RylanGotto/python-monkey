@@ -295,6 +295,18 @@ test_case_operator_precendence_parsing_0 = [
         "input": "!(true == true)",
         "expected": "(!(true == true))",
     },
+    {
+        "input": "a + add(b * c) + d",
+        "expected": "((a + add((b * c))) + d)",
+    },
+    {
+        "input": "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+        "expected": "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))",
+    },
+    {
+        "input": "add(a + b + c * d / f + g)",
+        "expected": "add((((a + b) + ((c * d) / f)) + g))",
+    },
 ]
 
 
@@ -501,6 +513,36 @@ def test_function_parameters_parsing(_input):
 
     for i, ident in enumerate(function.parameters):
         _test_literal_expression(function.parameters[i], ident.value)
+
+
+def test_call_expression_parsing():
+    _input = "add(1, 2 * 3, 4 + 5);"
+
+    l = Lexer(_input)
+    p = Parser(l)
+
+    program = p.parse_program()
+    if p.errors:
+        assert False, f"errors should not exist {p.errors}"
+
+    if len(program.statements) != 1:
+        assert False, f"expected 1, got {len(program.statements)}."
+    stmt = program.statements[0]
+    if not isinstance(stmt, ExpressionStatement):
+        assert False, f"should be of type `ExpressionStatement`, got {type(stmt)}."
+
+    if not isinstance(stmt.expression, CallExpression):
+        assert False, f"should be of type `CallExpression`, got {type(stmt.expression)}"
+    exp = stmt.expression
+    if not _test_identifier(exp.function, "add"):
+        assert False, f"incorrect identifier"
+
+    if len(exp.arguments) != 3:
+        assert False, f"expected 3, got {len(exp.arguments)}."
+
+    _test_literal_expression(exp.arguments[0], 1)
+    _test_infix_expression(exp.arguments[1], 2, "*", 3)
+    _test_infix_expression(exp.arguments[2], 4, "+", 5)
 
 
 ################################ HELPERS

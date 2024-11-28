@@ -30,6 +30,7 @@ precedences = {
     T.MINUS: Order.SUM.value,
     T.SLASH: Order.PRODUCT.value,
     T.ASTERISK: Order.PRODUCT.value,
+    T.LPAREN: Order.CALL.value,
 }
 
 
@@ -83,6 +84,7 @@ class Parser:
         self.register_infix(T.NOT_EQ, self.parse_infix_expression)
         self.register_infix(T.LT, self.parse_infix_expression)
         self.register_infix(T.GT, self.parse_infix_expression)
+        self.register_infix(T.LPAREN, self.parse_call_expression)
 
         # Read the first two tokens
         self.next_token()
@@ -291,8 +293,7 @@ class Parser:
         left_exp = prefix()
         if left_exp is None:
             return None
-        # print(self.peek_precedence(), "<--------- self")
-        # print(precedence, "<------ pre")
+
         # Process infix parse functions while conditions are met
         while not self.peek_token_is(T.SEMICOLON) and str(precedence) < str(
             self.peek_precedence()
@@ -464,7 +465,6 @@ class Parser:
             return None
 
         lit.parameters = self.parse_function_parameters()
-        print(lit.parameters)
         if lit.parameters is None:
             return None
 
@@ -495,3 +495,28 @@ class Parser:
             return None
 
         return identifiers
+
+    def parse_call_expression(self, fn):
+        exp = Ast.CallExpression(self.cur_token, fn, [])
+        exp.arguments = self.parse_call_arguments()
+        return exp
+
+    def parse_call_arguments(self):
+        args = []
+
+        if self.peek_token_is(T.RPAREN):
+            self.next_token()
+            return args
+
+        self.next_token()
+        args.append(self.parse_expression(Order.LOWEST.value))
+
+        while self.peek_token_is(T.COMMA):
+            self.next_token()
+            self.next_token()
+            args.append(self.parse_expression(Order.LOWEST.value))
+
+        if not self.expect_peek(T.RPAREN):
+            return None
+
+        return args

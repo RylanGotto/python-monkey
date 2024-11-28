@@ -423,3 +423,27 @@ class FunctionLiteral(Expression):
         out.append(self.body.string())
 
         return "".join(out)
+
+
+@dataclass
+class CallExpression(Expression):
+    token: Tokens.Token
+    function: Expression
+    arguments: List[Expression]
+
+    def expression_node(self):
+        return super().expression_node()
+
+    def token_literal(self):
+        return super().token_literal()
+
+    def string(self):
+        args = []
+        for i in self.arguments:
+            args.append(i.string())
+        out = []
+        out.append(self.function.string())
+        out.append("(")
+        out.append(", ".join(args))
+        out.append(")")
+        return "".join(out)
