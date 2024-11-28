@@ -396,3 +396,30 @@ class IfExpression(Expression):
             out.append("else ")
             out.append(self.consequence.string())
         return "".join(out)
+
+
+@dataclass
+class FunctionLiteral(Expression):
+    token: Tokens.Token
+    parameters: List[Identifier]
+    body: BlockStatement
+
+    def expression_node(self):
+        return super().expression_node()
+
+    def token_literal(self):
+        return super().token_literal()
+
+    def string(self):
+        params = []
+        out = []
+        for i in self.parameters:
+            params.append(i.string())
+
+        out.append(self.token_literal())
+        out.append("(")
+        out.append(", ".join(params))
+        out.append(")")
+        out.append(self.body.string())
+
+        return "".join(out)

@@ -71,6 +71,7 @@ class Parser:
         self.register_prefix(T.FALSE, self.parse_boolean)
         self.register_prefix(T.LPAREN, self.parse_grouped_expression)
         self.register_prefix(T.IF, self.parse_if_expression)
+        self.register_prefix(T.FUNCTION, self.parse_function_literal)
 
         # Register infix parse functions
         self.infix_parse_fns = {}
@@ -122,6 +123,7 @@ class Parser:
         Returns:
             Ast.Statement: The parsed statement, or None if the statement could not be parsed.
         """
+
         match self.cur_token._type:
             case T.LET:
                 return self.parse_let_statement()
@@ -181,6 +183,8 @@ class Parser:
         Returns:
             bool: True if the current token matches the type, False otherwise.
         """
+        if self.cur_token is None:
+            return False
         return self.cur_token._type == _type
 
     def peek_token_is(self, _type):
@@ -193,6 +197,8 @@ class Parser:
         Returns:
             bool: True if the peek token matches the type, False otherwise.
         """
+        if self.peek_token is None:
+            return False
         return self.peek_token._type == _type
 
     def expect_peek(self, _type):
@@ -208,6 +214,7 @@ class Parser:
         Returns:
             bool: True if the peek token matches the expected type, False otherwise.
         """
+
         if self.peek_token_is(_type):
             self.next_token()
             return True
@@ -253,7 +260,10 @@ class Parser:
             Ast.ExpressionStatement: The parsed expression statement.
         """
         stmt = Ast.ExpressionStatement(token=self.cur_token)
+
         stmt.expression = self.parse_expression(Order.LOWEST.value)
+        if stmt.expression is None:
+            return None
 
         if self.peek_token_is(T.SEMICOLON):
             self.next_token()
@@ -279,7 +289,10 @@ class Parser:
 
         # Initialize left_exp using the prefix parse function
         left_exp = prefix()
-
+        if left_exp is None:
+            return None
+        # print(self.peek_precedence(), "<--------- self")
+        # print(precedence, "<------ pre")
         # Process infix parse functions while conditions are met
         while not self.peek_token_is(T.SEMICOLON) and str(precedence) < str(
             self.peek_precedence()
@@ -291,6 +304,8 @@ class Parser:
             self.next_token()
 
             left_exp = infix(left_exp)
+            if left_exp is None:
+                return None
         return left_exp
 
     def parse_identifier(self):
@@ -337,7 +352,10 @@ class Parser:
         """
         expression = Ast.PrefixExpression(self.cur_token, self.cur_token.literal, None)
         self.next_token()
-        expression.right = self.parse_expression(Order.PREFIX.value)
+        right = self.parse_expression(Order.PREFIX.value)
+        if right is None:
+            return None
+        expression.right = right
         return expression
 
     def parse_infix_expression(self, left):
@@ -356,8 +374,10 @@ class Parser:
 
         precedence = self.cur_precendence()
         self.next_token()
-
-        expression.right = self.parse_expression(precedence)
+        right = self.parse_expression(precedence)
+        if right is None:
+            return None
+        expression.right = right
 
         return expression
 
@@ -379,16 +399,17 @@ class Parser:
         Returns:
             int: The precedence level for the current token.
         """
-        if p := precedences[self.cur_token._type]:
+        if p := precedences.get(self.cur_token._type):
             return p
         return Order.LOWEST.value
 
     def parse_boolean(self):
+        if self.cur_token is None:
+            return None
         return Ast.Boolean(self.cur_token, self.cur_token_is(T.TRUE))
 
     def parse_grouped_expression(self):
         self.next_token()
-
         exp = self.parse_expression(Order.LOWEST.value)
 
         if not self.expect_peek(T.RPAREN):
@@ -405,6 +426,8 @@ class Parser:
         self.next_token()
 
         expression.condition = self.parse_expression(Order.LOWEST.value)
+        if expression.condition is None:
+            return None
 
         if not self.expect_peek(T.RPAREN):
             return None
@@ -434,10 +457,41 @@ class Parser:
 
         return block
 
+    def parse_function_literal(self):
+        lit = Ast.FunctionLiteral(self.cur_token, [], None)
 
-def parse_prefix_plus():
-    pass
+        if not self.expect_peek(T.LPAREN):
+            return None
 
+        lit.parameters = self.parse_function_parameters()
+        print(lit.parameters)
+        if lit.parameters is None:
+            return None
 
-def parse_infix_plus():
-    pass
+        if not self.expect_peek(T.LBRACE):
+            return None
+
+        lit.body = self.parse_block_statement()
+        return lit
+
+    def parse_function_parameters(self):
+        identifiers = []
+
+        if self.peek_token_is(T.RPAREN):
+            self.next_token()
+            return identifiers
+
+        self.next_token()
+        ident = Ast.Identifier(self.cur_token, self.cur_token.literal)
+        identifiers.append(ident)
+
+        while self.peek_token_is(T.COMMA):
+            self.next_token()
+            self.next_token()
+            ident = Ast.Identifier(self.cur_token, self.cur_token.literal)
+            identifiers.append(ident)
+
+        if not self.expect_peek(T.RPAREN):
+            return None
+
+        return identifiers

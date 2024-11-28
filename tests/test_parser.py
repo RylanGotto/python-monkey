@@ -420,6 +420,89 @@ def test_if_else_expression():
         assert False, f"_test identifier failed"
 
 
+def test_function_literal_parsing():
+    _input = "fn(x, y) { x + y; }"
+
+    l = Lexer(_input)
+    p = Parser(l)
+
+    program = p.parse_program()
+    if p.errors:
+        assert False, f"errors should not exist {p.errors}"
+
+    if len(program.statements) != 1:
+        assert False, f"expected 1, got {len(program.statements)}."
+
+    stmt = program.statements[0]
+
+    if not isinstance(stmt, ExpressionStatement):
+        assert False, f"should be of type `ExpressionStatement`, got {type(stmt)}."
+
+    if not isinstance(stmt.expression, FunctionLiteral):
+        assert (
+            False
+        ), f"should be of type `FunctionLiteral`, got {type(stmt.expression)}"
+
+    function = stmt.expression
+
+    if len(function.parameters) != 2:
+        assert (
+            False
+        ), f"function literal params wrong, want 2, got {len(function.parameters)}"
+
+    _test_literal_expression(function.parameters[0], "x")
+    _test_literal_expression(function.parameters[1], "y")
+
+    if len(function.body.statements) != 1:
+        assert (
+            False
+        ), f"function.body.statements has not 1 statements, got {len(function.body.statements)}"
+
+    if not isinstance(function.body.statements[0], ExpressionStatement):
+        assert False, f"should be of type `ExpressionStatement`, got {type(stmt)}."
+
+    body_stmt = function.body.statements[0]
+
+    _test_infix_expression(body_stmt.expression, "x", "+", "y")
+
+
+test_case_function_parameters_parsing_0 = [
+    {"input": "fn() {}", "expected": []},
+    {"input": "fn(x) {}", "expected": ["x"]},
+    {"input": "fn(x, y, z) {}", "expected": ["x", "y", "x"]},
+]
+
+
+@pytest.mark.parametrize("_input", test_case_function_parameters_parsing_0)
+def test_function_parameters_parsing(_input):
+    l = Lexer(_input["input"])
+    p = Parser(l)
+
+    program = p.parse_program()
+    if p.errors:
+        assert False, f"errors should not exist {p.errors}"
+
+    stmt = program.statements[0]
+
+    if not isinstance(stmt, ExpressionStatement):
+        assert False, f"should be of type `ExpressionStatement`, got {type(stmt)}."
+
+    if not isinstance(stmt.expression, FunctionLiteral):
+        assert (
+            False
+        ), f"should be of type `FunctionLiteral`, got {type(stmt.expression)}"
+
+    function = stmt.expression
+
+    if len(function.parameters) != len(_input["expected"]):
+        assert (
+            False
+        ), f"function literal params wrong, want {len(_input["expected"])}, got {len(function.parameters)}"
+
+    for i, ident in enumerate(function.parameters):
+        _test_literal_expression(function.parameters[i], ident.value)
+
+
 ################################ HELPERS
 def _test_integer_literal(exp: Expression, value: int):
     """
