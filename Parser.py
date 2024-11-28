@@ -144,7 +144,7 @@ class Parser:
         stmt = Ast.ReturnStatement(self.cur_token, None)
         self.next_token()
 
-        # TODO parse expression
+        stmt.return_value = self.parse_expression(Order.LOWEST.value)
 
         while not self.cur_token_is(T.SEMICOLON):
             self.next_token()
@@ -165,10 +165,12 @@ class Parser:
 
         stmt.name = Ast.Identifier(self.cur_token, self.cur_token.literal)
 
-        # TODO Peek at expressions?
-
         if not self.expect_peek(T.ASSIGN):
             return None
+
+        self.next_token()
+
+        stmt.value = self.parse_expression(Order.LOWEST.value)
 
         while not self.cur_token_is(T.SEMICOLON):
             self.next_token()

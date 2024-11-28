@@ -13,9 +13,15 @@ test_case_let_state_0 = """
 test_case_let_state_0_expected = ["x", "y", "foobar"]
 test_data = [(test_case_let_state_0, test_case_let_state_0_expected)]
 
+test_case_let_state_0 = [
+    {"input": "let x = 5;", "ident": "x", "value": 5},
+    {"input": "let y = true;", "ident": "y", "value": "true"},
+    {"input": "let foobar = y;", "ident": "foobar", "value": "y"},
+]
 
-@pytest.mark.parametrize("_input, expected", test_data)
-def test_let_statement(_input: str, expected: list[str]):
+
+@pytest.mark.parametrize("_input", test_case_let_state_0)
+def test_let_statement(_input):
     """
     Test the parsing of let statements.
 
@@ -26,32 +32,38 @@ def test_let_statement(_input: str, expected: list[str]):
         _input (str): The input string containing the source code to be parsed.
         expected (list[str]): The expected list of variable names declared in 'let' statements.
     """
-    l = Lexer(_input)
+
+    l = Lexer(_input["input"])
     p = Parser(l)
 
     program = p.parse_program()
     if program == None:
         assert False, "program should not be None."
 
-    if len(program.statements) != 3:
+    if len(program.statements) != 1:
         assert False, f"expected 3, got {len(program.statements)}."
 
-    for k, i in enumerate(program.statements):
-        if i.token_literal() != "let":
-            assert False, f"token literal should be `let`, got {i.token_literal}."
+    _test_let_statement(program.statements[0], _input["ident"])
 
-        if not isinstance(i, LetStatement):
-            assert False, f"should be of type `LetStatement`, got {type(i)}."
+    _test_literal_expression(program.statements[0].value, _input["value"])
 
-        if i.name.value != expected[k]:
-            assert (
-                False
-            ), f"Statement name value does not match expected. Expected {i.name.value}, got {expected[k]}"
 
-        if i.name.token_literal() != expected[k]:
-            assert (
-                False
-            ), f"Statement name token literal does not match expected. Expected {i.name.token_literal()}, got {expected[k]}"
+def _test_let_statement(stmt, ident):
+    if stmt.token_literal() != "let":
+        assert False, f"token literal should be `let`, got {stmt.token_literal}."
+
+    if not isinstance(stmt, LetStatement):
+        assert False, f"should be of type `LetStatement`, got {type(i)}."
+
+    if stmt.name.value != ident:
+        assert (
+            False
+        ), f"Statement name value does not match expected. Expected {stmt.name.value}, got {ident}"
+
+    if stmt.name.token_literal() != ident:
+        assert (
+            False
+        ), f"Statement name token literal does not match expected. Expected {stmt.name.token_literal()}, got {ident}"
 
 
 def test_return():
