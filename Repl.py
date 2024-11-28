@@ -1,6 +1,6 @@
 import os
 
-from . import Lexer
+from . import Lexer, Parser
 
 PROMPT = ">> "
 
@@ -21,14 +21,22 @@ def start():
 
         # Initialize the Lexer with the input string
         L = Lexer.Lexer(inp)
+        parser = Parser.Parser(L)
 
-        # Read the first character of input
-        L.read_char()
+        program = parser.parse_program()
+        if len(parser.errors) != 0:
+            print_parser_errors(parser.errors)
+            continue
 
-        # Get the first token
-        token = L.next_token()
+        print(program.string() + "\n")
 
-        # Continuously print token types and literals until EOF is encountered
-        while token._type != "EOF":
-            print(token._type, token.literal)
-            token = L.next_token()
+
+def print_parser_errors(errors):
+    for i in errors:
+        print("\t")
+        print(i)
+        print("\n")
+
+
+if __name__ == "__main__":
+    start()

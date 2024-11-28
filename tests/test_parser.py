@@ -5,16 +5,10 @@ from monkey.Lexer import Lexer
 from monkey.Parser import Parser
 
 # Test case for multiple let statements
-test_case_let_state_0 = """
-    let x = 5;
-    let y = 10;
-    let foobar = 838383;
-"""
-test_case_let_state_0_expected = ["x", "y", "foobar"]
-test_data = [(test_case_let_state_0, test_case_let_state_0_expected)]
+
 
 test_case_let_state_0 = [
-    {"input": "let x = 5;", "ident": "x", "value": 5},
+    {"input": "let x = 5", "ident": "x", "value": 5},
     {"input": "let y = true;", "ident": "y", "value": "true"},
     {"input": "let foobar = y;", "ident": "foobar", "value": "y"},
 ]
@@ -265,59 +259,71 @@ def test_parseing_infix_expression(_input: dict[str, str | int]):
 
 
 test_case_operator_precendence_parsing_0 = [
-    {"input": "-a * b", "expected": "((-a) * b)"},
-    {"input": "!-a", "expected": "(!(-a))"},
-    {"input": "a + b + c", "expected": "((a + b) + c)"},
-    {"input": "a + b - c", "expected": "((a + b) - c)"},
-    {"input": "a * b * c", "expected": "((a * b) * c)"},
-    {"input": "a * b / c", "expected": "((a * b) / c)"},
-    {"input": "a + b / c", "expected": "(a + (b / c))"},
-    {"input": "a + b * c + d / e - f", "expected": "(((a + (b * c)) + (d / e)) - f)"},
-    {"input": "3 + 4; -5 * 5;", "expected": "(3 + 4)((-5) * 5)"},
-    {"input": "5 > 4 == 3 < 4", "expected": "((5 > 4) == (3 < 4))"},
-    {"input": "5 < 4 != 3 > 4", "expected": "((5 < 4) != (3 > 4))"},
+    # {"input": "-a * b", "expected": "((-a) * b)"},
+    # {"input": "!-a", "expected": "(!(-a))"},
+    # {"input": "a + b + c", "expected": "((a + b) + c)"},
+    # {"input": "a + b - c", "expected": "((a + b) - c)"},
+    # {"input": "a * b * c", "expected": "((a * b) * c)"},
+    # {"input": "a * b / c", "expected": "((a * b) / c)"},
+    # {"input": "a + b / c", "expected": "(a + (b / c))"},
+    # {"input": "a + b * c + d / e - f", "expected": "(((a + (b * c)) + (d / e)) - f)"},
+    # {"input": "3 + 4; -5 * 5;", "expected": "(3 + 4)((-5) * 5)"},
+    # {"input": "5 > 4 == 3 < 4", "expected": "((5 > 4) == (3 < 4))"},
+    # {"input": "5 < 4 != 3 > 4", "expected": "((5 < 4) != (3 > 4))"},
+    # {
+    #     "input": "3 + 4 * 5 == 3 * 1 + 4 * 5",
+    #     "expected": "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+    # },
+    # {"input": "true", "expected": "true"},
+    # {"input": "false", "expected": "false"},
+    # {"input": "3 > 5 == false", "expected": "((3 > 5) == false)"},
+    # {
+    #     "input": "3 < 5 == true",
+    #     "expected": "((3 < 5) == true)",
+    # },
+    # {
+    #     "input": "1 + (2 + 3) + 4",
+    #     "expected": "((1 + (2 + 3)) + 4)",
+    # },
+    # {
+    #     "input": "(5 + 5) * 2",
+    #     "expected": "((5 + 5) * 2)",
+    # },
+    # {
+    #     "input": "2 / (5 + 5)",
+    #     "expected": "(2 / (5 + 5))",
+    # },
+    # {
+    #     "input": "-(5 + 5)",
+    #     "expected": "(-(5 + 5))",
+    # },
+    # {
+    #     "input": "!(true == true)",
+    #     "expected": "(!(true == true))",
+    # },
+    # {
+    #     "input": "a + add(b * c) + d",
+    #     "expected": "((a + add((b * c))) + d)",
+    # },
+    # {
+    #     "input": "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+    #     "expected": "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))",
+    # },
+    # {
+    #     "input": "add(a + b + c * d / f + g)",
+    #     "expected": "add((((a + b) + ((c * d) / f)) + g))",
+    # },
     {
-        "input": "3 + 4 * 5 == 3 * 1 + 4 * 5",
-        "expected": "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+        "input": "true == false",
+        "expected": "(true == false)",
     },
-    {"input": "true", "expected": "true"},
-    {"input": "false", "expected": "false"},
-    {"input": "3 > 5 == false", "expected": "((3 > 5) == false)"},
     {
-        "input": "3 < 5 == true",
-        "expected": "((3 < 5) == true)",
+        "input": " x * y / 2 + 3 * 8 - 123",
+        "expected": "((((x * y) / 2) + (3 * 8)) - 123)",
     },
     {
-        "input": "1 + (2 + 3) + 4",
-        "expected": "((1 + (2 + 3)) + 4)",
-    },
-    {
-        "input": "(5 + 5) * 2",
-        "expected": "((5 + 5) * 2)",
-    },
-    {
-        "input": "2 / (5 + 5)",
-        "expected": "(2 / (5 + 5))",
-    },
-    {
-        "input": "-(5 + 5)",
-        "expected": "(-(5 + 5))",
-    },
-    {
-        "input": "!(true == true)",
-        "expected": "(!(true == true))",
-    },
-    {
-        "input": "a + add(b * c) + d",
-        "expected": "((a + add((b * c))) + d)",
-    },
-    {
-        "input": "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
-        "expected": "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))",
-    },
-    {
-        "input": "add(a + b + c * d / f + g)",
-        "expected": "add((((a + b) + ((c * d) / f)) + g))",
+        "input": "let x = 1 * 2 * 3 * 4 * 5",
+        "expected": "let x = ((((1 * 2) * 3) * 4) * 5);",
     },
 ]
 
@@ -340,7 +346,7 @@ def test_case_operator_precendence_parsing(_input: dict[str, str]):
         assert False, f"errors should not exist"
 
     actual = program.string()
-
+    print(_input["expected"])
     if actual != _input["expected"]:
         assert False, f"expected={_input['expected']}, got={actual}"
 

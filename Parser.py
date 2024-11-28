@@ -146,7 +146,7 @@ class Parser:
 
         stmt.return_value = self.parse_expression(Order.LOWEST.value)
 
-        while not self.cur_token_is(T.SEMICOLON):
+        if self.cur_token_is(T.SEMICOLON):
             self.next_token()
 
         return stmt
@@ -172,7 +172,7 @@ class Parser:
 
         stmt.value = self.parse_expression(Order.LOWEST.value)
 
-        while not self.cur_token_is(T.SEMICOLON):
+        if self.cur_token_is(T.SEMICOLON):
             self.next_token()
 
         return stmt
