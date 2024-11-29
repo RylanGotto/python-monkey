@@ -133,7 +133,7 @@ class Lexer:
             str: The numeric literal read from the input.
         """
         postion = self.position
-        while is_digit(self.ch) and self.read_position <= len(self._input):
+        while self.ch != 0 and is_digit(self.ch):
             self.read_char()
         return self._input[postion : self.position]
 

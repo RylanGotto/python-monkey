@@ -6,6 +6,15 @@ from monkey.Object import *
 from monkey.Parser import Parser
 
 
+def _test_eval(input):
+    l = Lexer(input)
+    p = Parser(l)
+    program = p.parse_program()
+    ev = Ev()
+    env = Environment()
+    return ev.eval(program, env)
+
+
 def test_eval_interger_expression():
     cases = [
         ("5", 5),
@@ -58,18 +67,10 @@ def test_eval_bool_expression():
         _test_boolean_object(evaluated, i[1])
 
 
-def _test_eval(input):
-    l = Lexer(input)
-    p = Parser(l)
-    program = p.parse_program()
-    ev = Ev()
-    return ev.eval(program)
-
-
 def _test_interger_object(obj, expected):
 
     if not isinstance(obj, Integer):
-        assert False, f"object not of type Integer"
+        assert False, f"object not of type Integer, got {obj}"
 
     _int = obj
 
@@ -176,6 +177,7 @@ def test_error_handling():
         """,
             "unknown operator: BOOLEAN + BOOLEAN",
         ),
+        ("foobar", "Identifier not found: foobar"),
     ]
 
     for i in cases:
@@ -183,7 +185,20 @@ def test_error_handling():
         if not isinstance(evaluated, Error):
             pytest.fail(f"wrong error message. expected {i[1]}, got {evaluated}")
             continue
+
         if evaluated.message != i[1]:
             assert (
                 False
-            ), f"wrong error message. expected {i[0]}, got {evaluated.message}"
+            ), f"wrong error message. expected {i[1]}, got {evaluated.message}"
+
+
+def test_let_statements():
+    cases = [
+        ("let a = 5; a;", 5),
+        ("let a = 5 * 5; a;", 25),
+        ("let a = 5; let b = a; b;", 5),
+        ("let a = 5; let b = a; let c = a + b + 5; c;", 15),
+    ]
+
+    for i in cases:
+        _test_interger_object(_test_eval(i[0]), i[1])

@@ -109,7 +109,6 @@ class Parser:
             Ast.Program: The AST representing the entire program.
         """
         program = Ast.Program([])
-
         while self.cur_token._type != T.EOF:
             stmt = self.parse_statement()
             if stmt is not None:
@@ -146,7 +145,7 @@ class Parser:
 
         stmt.return_value = self.parse_expression(Order.LOWEST.value)
 
-        if self.cur_token_is(T.SEMICOLON):
+        if self.peek_token_is(T.SEMICOLON):
             self.next_token()
 
         return stmt
@@ -171,8 +170,7 @@ class Parser:
         self.next_token()
 
         stmt.value = self.parse_expression(Order.LOWEST.value)
-
-        if self.cur_token_is(T.SEMICOLON):
+        if self.peek_token_is(T.SEMICOLON):
             self.next_token()
 
         return stmt

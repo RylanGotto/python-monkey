@@ -84,6 +84,18 @@ class Error(Object):
         return f"ERROR: {self.message}"
 
 
+class Environment:
+    def __init__(self):
+        self.env = {}
+
+    def get(self, name):
+        return self.env.get(name)
+
+    def set(self, name, val):
+        self.env.update({name: val})
+        return val
+
+
 ERROR_OBJ = ObjectType("ERROR")
 RETURN_VALUE_OBJ = ObjectType("RETURN_VALUE")
 NULL_OBJ = ObjectType("null")

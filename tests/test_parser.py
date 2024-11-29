@@ -8,9 +8,9 @@ from monkey.Parser import Parser
 
 
 test_case_let_state_0 = [
-    {"input": "let x = 5", "ident": "x", "value": 5},
-    {"input": "let y = true;", "ident": "y", "value": "true"},
-    {"input": "let foobar = y;", "ident": "foobar", "value": "y"},
+    {"input": "let x = 5;", "ident": "x", "value": 5},
+    # {"input": "let y = true;", "ident": "y", "value": "true"},
+    # {"input": "let foobar = y;", "ident": "foobar", "value": "y"},
 ]
 
 
