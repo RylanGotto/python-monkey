@@ -132,3 +132,26 @@ def _test_null_object(obj):
     if obj.inspect() != NULL_OBJ._type:
         assert False, f"object is not NULL got {obj}"
     return True
+
+
+def test_return_statements():
+    cases = [
+        ("return 10;", 10),
+        ("return 10; 9;", 10),
+        ("return 2 * 5; 9;", 10),
+        ("9; return 2 * 5; 9;", 10),
+        (
+            """ if (10 > 1) {
+                    if (10 > 1) {
+                        return 10;
+                    }
+                    return 1;
+                } 
+            """,
+            10,
+        ),
+    ]
+
+    for i in cases:
+        evaluated = _test_eval(i[0])
+        _test_interger_object(evaluated, i[1])

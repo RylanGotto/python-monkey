@@ -9,7 +9,7 @@ class Ev:
     def eval(self, node):
         match type(node):
             case Ast.Program:
-                return self.eval_statements(node.statements)
+                return self.eval_program(node)
             case Ast.ExpressionStatement:
                 return self.eval(node.expression)
             case Ast.IntegerLiteral:
@@ -24,16 +24,22 @@ class Ev:
                 right = self.eval(node.right)
                 return self.eval_infix_expression(node.operator, left, right)
             case Ast.BlockStatement:
-                return self.eval_statements(node.statements)
+                return self.eval_block_statement(node)
             case Ast.IfExpression:
                 return self.eval_if_expression(node)
+            case Ast.ReturnStatement:
+                val = self.eval(node.return_value)
+                return Object.ReturnValue(value=val)
 
         return None
 
-    def eval_statements(self, statements):
+    def eval_program(self, program):
         result = None
-        for i in statements:
+        for i in program.statements:
             result = self.eval(i)
+            if isinstance(result, Object.ReturnValue):
+                return result.value
+
         return result
 
     def native_bool_to_boolean(self, _input):
@@ -121,3 +127,12 @@ class Ev:
                 return False
             case _:
                 return True
+
+    def eval_block_statement(self, block):
+        result = None
+
+        for i in block.statements:
+            result = self.eval(i)
+            if result != None and result._type == Object.RETURN_VALUE_OBJ:
+                return result
+        return result

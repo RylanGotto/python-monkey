@@ -33,6 +33,7 @@ class Integer(Object):
 
 
 class Boolean(Object):
+
     def __init__(self, value):
         self.value = value
         self._type = BOOLEAN_OBJ
@@ -45,6 +46,7 @@ class Boolean(Object):
 
 
 class Null(Object):
+
     def __init__(self):
         self._type = NULL_OBJ
 
@@ -55,6 +57,20 @@ class Null(Object):
         return "null"
 
 
+class ReturnValue(Object):
+
+    def __init__(self, value):
+        self.value = value
+        self._type = RETURN_VALUE_OBJ
+
+    def _type(self):
+        return self._type()
+
+    def inspect(self):
+        return self.value.inspect()
+
+
+RETURN_VALUE_OBJ = ObjectType("RETURN_VALUE")
 NULL_OBJ = ObjectType("null")
 INTEGER_OBJ = ObjectType("INTEGER")
 BOOLEAN_OBJ = ObjectType("BOOLEAN")
