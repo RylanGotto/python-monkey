@@ -18,10 +18,16 @@ class Ev:
                 return self.native_bool_to_boolean(node.value)
             case Ast.PrefixExpression:
                 right = self.eval(node.right)
+                if self.is_error(right):
+                    return right
                 return self.eval_prefix_expression(node.operator, right)
             case Ast.InfixExpression:
                 left = self.eval(node.left)
+                if self.is_error(left):
+                    return left
                 right = self.eval(node.right)
+                if self.is_error(right):
+                    return right
                 return self.eval_infix_expression(node.operator, left, right)
             case Ast.BlockStatement:
                 return self.eval_block_statement(node)
@@ -29,6 +35,8 @@ class Ev:
                 return self.eval_if_expression(node)
             case Ast.ReturnStatement:
                 val = self.eval(node.return_value)
+                if self.is_error(val):
+                    return val
                 return Object.ReturnValue(value=val)
 
         return None
@@ -39,7 +47,8 @@ class Ev:
             result = self.eval(i)
             if isinstance(result, Object.ReturnValue):
                 return result.value
-
+            elif isinstance(result, Object.Error):
+                return result
         return result
 
     def native_bool_to_boolean(self, _input):
@@ -54,7 +63,7 @@ class Ev:
             case "-":
                 return self.eval_minus_prefix_operator_expression(right)
             case _:
-                return self.NULL
+                return self.new_error("uknown operator: %s%s", operator, right._type)
 
     def eval_bang_operator_expression(self, right):
         match right.value:
@@ -69,7 +78,7 @@ class Ev:
 
     def eval_minus_prefix_operator_expression(self, right):
         if right._type != Object.INTEGER_OBJ:
-            return self.NULL
+            return self.new_error("unknown operator: -%s", right._type)
 
         value = right.value
         return Object.Integer(value=-value)
@@ -81,7 +90,13 @@ class Ev:
             return self.native_bool_to_boolean(left.value == right.value)
         elif operator == "!=":
             return self.native_bool_to_boolean(left.value != right.value)
-        return self.NULL
+        elif left._type != right._type:
+            return self.new_error(
+                "type mismatch: %s %s %s", left._type, operator, right._type
+            )
+        return self.new_error(
+            "unknown operator: %s %s %s", left._type, operator, right._type
+        )
 
     def eval_integer_infix_expression(self, operator, left, right):
         left_val = left.value
@@ -105,11 +120,14 @@ class Ev:
             case "!=":
                 return self.native_bool_to_boolean(left_val != right_val)
             case _:
-                return self.NULL
+                return self.new_error(
+                    "unknown operator: %s %s %s", left._type, operator, right._type
+                )
 
     def eval_if_expression(self, exp):
         condition = self.eval(exp.condition)
-
+        if self.is_error(condition):
+            return condition
         if self.is_truthy(condition):
             return self.eval(exp.consequence)
         elif exp.alternative != None:
@@ -133,6 +151,17 @@ class Ev:
 
         for i in block.statements:
             result = self.eval(i)
-            if result != None and result._type == Object.RETURN_VALUE_OBJ:
+            if (
+                result._type == Object.RETURN_VALUE_OBJ
+                or result._type == Object.ERROR_OBJ
+            ):
                 return result
         return result
+
+    def new_error(self, format_string, *args):
+        return Object.Error(message=format_string % args)
+
+    def is_error(self, obj):
+        if obj != None:
+            return obj._type == Object.ERROR_OBJ
+        return False

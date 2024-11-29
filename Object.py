@@ -6,6 +6,9 @@ from dataclasses import dataclass
 class ObjectType:
     _type: str
 
+    def __str__(self):
+        return self._type
+
 
 @dataclass
 class Object(ABC):
@@ -70,6 +73,18 @@ class ReturnValue(Object):
         return self.value.inspect()
 
 
+class Error(Object):
+    def __init__(self, message):
+        self.message = message
+
+    def _type(self):
+        return ERROR_OBJ
+
+    def inspect(self):
+        return f"ERROR: {self.message}"
+
+
+ERROR_OBJ = ObjectType("ERROR")
 RETURN_VALUE_OBJ = ObjectType("RETURN_VALUE")
 NULL_OBJ = ObjectType("null")
 INTEGER_OBJ = ObjectType("INTEGER")
