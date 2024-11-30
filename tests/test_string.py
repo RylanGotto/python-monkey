@@ -1,4 +1,4 @@
-from monkey.ast import Identifier, LetStatement, Program
+from monkey.mast import Identifier, LetStatement, Program
 from monkey.tokens import *
 
 

@@ -2,7 +2,7 @@ import os
 
 from . import lexer, parser
 from .evaluator import Evaluator
-from .object import Environment
+from .mobject import Environment
 
 PROMPT = ">> "
 

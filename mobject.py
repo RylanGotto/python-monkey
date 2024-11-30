@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import List
+
+from . import mast as Ast
 
 
 @dataclass
@@ -96,8 +99,48 @@ class Environment:
         return val
 
 
+class NewClosedEnvironment:
+    def __init__(self):
+        self.env = {}
+        self.outer = None
+
+    def get(self, name):
+        obj = self.env.get(name)
+        if not obj and self.outer != None:
+            obj = self.outer.get(name)
+        return obj
+
+    def set(self, name, val):
+        self.env.update({name: val})
+        return val
+
+
+@dataclass
+class Function(Object):
+    parameters: List[Ast.Identifier]
+    env: Environment
+    body: Ast.BlockStatement
+
+    def _type(self):
+        return super()._type()
+
+    def inspect(self):
+        params = []
+        for i in self.parameters:
+            params.append(i)
+        out = []
+        out.append("fn")
+        out.append("(")
+        out.append("".join(params))
+        out.append(") {\n")
+        out.append(self.body.string())
+        out.append("\n}")
+        return "".join()
+
+
 ERROR_OBJ = ObjectType("ERROR")
 RETURN_VALUE_OBJ = ObjectType("RETURN_VALUE")
 NULL_OBJ = ObjectType("null")
 INTEGER_OBJ = ObjectType("INTEGER")
 BOOLEAN_OBJ = ObjectType("BOOLEAN")
+FUNCTION_OBJ = ObjectType("FUNCTION")

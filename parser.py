@@ -1,6 +1,6 @@
 from enum import Enum, auto
 
-from . import ast
+from . import mast
 from . import tokens as T
 
 
@@ -108,7 +108,7 @@ class Parser:
         Returns:
             Ast.Program: The AST representing the entire program.
         """
-        program = ast.Program([])
+        program = mast.Program([])
         while self.cur_token._type != T.EOF:
             stmt = self.parse_statement()
             if stmt is not None:
@@ -140,7 +140,7 @@ class Parser:
         Returns:
             Ast.ReturnStatement: The parsed return statement.
         """
-        stmt = ast.ReturnStatement(self.cur_token, None)
+        stmt = mast.ReturnStatement(self.cur_token, None)
         self.next_token()
 
         stmt.return_value = self.parse_expression(Order.LOWEST.value)
@@ -157,12 +157,12 @@ class Parser:
         Returns:
             Ast.LetStatement: The parsed let statement, or None if invalid.
         """
-        stmt = ast.LetStatement(self.cur_token, None, None)
+        stmt = mast.LetStatement(self.cur_token, None, None)
 
         if not self.expect_peek(T.IDENT):
             return None
 
-        stmt.name = ast.Identifier(self.cur_token, self.cur_token.literal)
+        stmt.name = mast.Identifier(self.cur_token, self.cur_token.literal)
 
         if not self.expect_peek(T.ASSIGN):
             return None
@@ -261,7 +261,7 @@ class Parser:
         Returns:
             Ast.ExpressionStatement: The parsed expression statement.
         """
-        stmt = ast.ExpressionStatement(token=self.cur_token)
+        stmt = mast.ExpressionStatement(token=self.cur_token)
 
         stmt.expression = self.parse_expression(Order.LOWEST.value)
         if stmt.expression is None:
@@ -316,7 +316,7 @@ class Parser:
         Returns:
             Ast.Identifier: The parsed identifier.
         """
-        return ast.Identifier(token=self.cur_token, value=self.cur_token.literal)
+        return mast.Identifier(token=self.cur_token, value=self.cur_token.literal)
 
     def parse_interger_literal(self):
         """
@@ -325,7 +325,7 @@ class Parser:
         Returns:
             Ast.IntegerLiteral: The parsed integer literal.
         """
-        lit = ast.IntegerLiteral(self.cur_token, 0)
+        lit = mast.IntegerLiteral(self.cur_token, 0)
 
         try:
             value = int(self.cur_token.literal)
@@ -351,7 +351,7 @@ class Parser:
         Returns:
             Ast.PrefixExpression: The parsed prefix expression.
         """
-        expression = ast.PrefixExpression(self.cur_token, self.cur_token.literal, None)
+        expression = mast.PrefixExpression(self.cur_token, self.cur_token.literal, None)
         self.next_token()
         right = self.parse_expression(Order.PREFIX.value)
         if right is None:
@@ -369,7 +369,7 @@ class Parser:
         Returns:
             Ast.InfixExpression: The parsed infix expression.
         """
-        expression = ast.InfixExpression(
+        expression = mast.InfixExpression(
             self.cur_token, left, self.cur_token.literal, None
         )
 
@@ -407,7 +407,7 @@ class Parser:
     def parse_boolean(self):
         if self.cur_token is None:
             return None
-        return ast.Boolean(self.cur_token, self.cur_token_is(T.TRUE))
+        return mast.Boolean(self.cur_token, self.cur_token_is(T.TRUE))
 
     def parse_grouped_expression(self):
         self.next_token()
@@ -419,7 +419,7 @@ class Parser:
         return exp
 
     def parse_if_expression(self):
-        expression = ast.IfExpression(self.cur_token, None, None, None)
+        expression = mast.IfExpression(self.cur_token, None, None, None)
 
         if not self.expect_peek(T.LPAREN):
             return None
@@ -448,7 +448,7 @@ class Parser:
         return expression
 
     def parse_block_statement(self):
-        block = ast.BlockStatement(self.cur_token, [])
+        block = mast.BlockStatement(self.cur_token, [])
         self.next_token()
 
         while not self.cur_token_is(T.RBRACE) and not self.cur_token_is(T.EOF):
@@ -459,7 +459,7 @@ class Parser:
         return block
 
     def parse_function_literal(self):
-        lit = ast.FunctionLiteral(self.cur_token, [], None)
+        lit = mast.FunctionLiteral(self.cur_token, [], None)
 
         if not self.expect_peek(T.LPAREN):
             return None
@@ -482,13 +482,13 @@ class Parser:
             return identifiers
 
         self.next_token()
-        ident = ast.Identifier(self.cur_token, self.cur_token.literal)
+        ident = mast.Identifier(self.cur_token, self.cur_token.literal)
         identifiers.append(ident)
 
         while self.peek_token_is(T.COMMA):
             self.next_token()
             self.next_token()
-            ident = ast.Identifier(self.cur_token, self.cur_token.literal)
+            ident = mast.Identifier(self.cur_token, self.cur_token.literal)
             identifiers.append(ident)
 
         if not self.expect_peek(T.RPAREN):
@@ -497,7 +497,7 @@ class Parser:
         return identifiers
 
     def parse_call_expression(self, fn):
-        exp = ast.CallExpression(self.cur_token, fn, [])
+        exp = mast.CallExpression(self.cur_token, fn, [])
         exp.arguments = self.parse_call_arguments()
         return exp
 

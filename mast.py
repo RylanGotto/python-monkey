@@ -447,3 +447,10 @@ class CallExpression(Expression):
         out.append(", ".join(args))
         out.append(")")
         return "".join(out)
+
+
+@dataclass
+class FunctionLiteral:
+    token: tokens.Token
+    parameters: List[Identifier]
+    body: BlockStatement

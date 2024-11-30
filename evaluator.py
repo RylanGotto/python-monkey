@@ -1,28 +1,28 @@
-from . import ast, object
+from . import mast, mobject
 
 
 class Evaluator:
-    NULL = object.Null()
-    TRUE = object.Boolean(value="true")
-    FALSE = object.Boolean(value="false")
+    NULL = mobject.Null()
+    TRUE = mobject.Boolean(value="true")
+    FALSE = mobject.Boolean(value="false")
 
     def eval(self, node, env):
         counter = 0
         match type(node):
-            case ast.Program:
+            case mast.Program:
                 return self.eval_program(node, env)
-            case ast.ExpressionStatement:
+            case mast.ExpressionStatement:
                 return self.eval(node.expression, env)
-            case ast.IntegerLiteral:
-                return object.Integer(value=node.value)
-            case ast.Boolean:
+            case mast.IntegerLiteral:
+                return mobject.Integer(value=node.value)
+            case mast.Boolean:
                 return self.native_bool_to_boolean(node.value)
-            case ast.PrefixExpression:
+            case mast.PrefixExpression:
                 right = self.eval(node.right, env)
                 if self.is_error(right):
                     return right
                 return self.eval_prefix_expression(node.operator, right)
-            case ast.InfixExpression:
+            case mast.InfixExpression:
                 left = self.eval(node.left, env)
                 if self.is_error(left):
                     return left
@@ -30,22 +30,36 @@ class Evaluator:
                 if self.is_error(right):
                     return right
                 return self.eval_infix_expression(node.operator, left, right)
-            case ast.BlockStatement:
+            case mast.BlockStatement:
                 return self.eval_block_statement(node, env)
-            case ast.IfExpression:
+            case mast.IfExpression:
                 return self.eval_if_expression(node, env)
-            case ast.ReturnStatement:
+            case mast.ReturnStatement:
                 val = self.eval(node.return_value, env)
                 if self.is_error(val):
                     return val
-                return object.ReturnValue(value=val)
-            case ast.LetStatement:
+                return mobject.ReturnValue(value=val)
+            case mast.LetStatement:
                 val = self.eval(node.value, env)
                 if self.is_error(val):
                     return val
                 env.set(node.name.value, val)
-            case ast.Identifier:
+            case mast.Identifier:
                 return self.eval_identifier(node, env)
+            case mast.FunctionLiteral:
+                params = node.parameters
+                body = node.body
+                return mobject.Function(params, env, body)
+            case mast.CallExpression:
+                func = self.eval(node.function, env)
+
+                if self.is_error(func):
+                    return func
+                args = self.eval_expressions(node.arguments, env)
+                if len(args) == 1 and self.is_error(args[0]):
+                    return args[0]
+
+                return self.apply_function(func, args)
 
         return None
 
@@ -53,9 +67,9 @@ class Evaluator:
         result = None
         for i in program.statements:
             result = self.eval(i, env)
-            if isinstance(result, object.ReturnValue):
+            if isinstance(result, mobject.ReturnValue):
                 return result.value
-            elif isinstance(result, object.Error):
+            elif isinstance(result, mobject.Error):
                 return result
         return result
 
@@ -85,14 +99,14 @@ class Evaluator:
                 return self.FALSE
 
     def eval_minus_prefix_operator_expression(self, right):
-        if right._type != object.INTEGER_OBJ:
+        if right._type != mobject.INTEGER_OBJ:
             return self.new_error("unknown operator: -%s", right._type)
 
         value = right.value
-        return object.Integer(value=-value)
+        return mobject.Integer(value=-value)
 
     def eval_infix_expression(self, operator, left, right):
-        if left._type == object.INTEGER_OBJ and right._type == object.INTEGER_OBJ:
+        if left._type == mobject.INTEGER_OBJ and right._type == mobject.INTEGER_OBJ:
             return self.eval_integer_infix_expression(operator, left, right)
         elif operator == "==":
             return self.native_bool_to_boolean(left.value == right.value)
@@ -112,13 +126,13 @@ class Evaluator:
 
         match operator:
             case "+":
-                return object.Integer(value=left_val + right_val)
+                return mobject.Integer(value=left_val + right_val)
             case "-":
-                return object.Integer(value=left_val - right_val)
+                return mobject.Integer(value=left_val - right_val)
             case "*":
-                return object.Integer(value=left_val * right_val)
+                return mobject.Integer(value=left_val * right_val)
             case "/":
-                return object.Integer(value=left_val / right_val)
+                return mobject.Integer(value=left_val / right_val)
             case "<":
                 return self.native_bool_to_boolean(left_val < right_val)
             case ">":
@@ -149,7 +163,7 @@ class Evaluator:
         except:
             val = obj
         match val:
-            case object.NULL_OBJ._type:
+            case mobject.NULL_OBJ._type:
                 return False
             case self.TRUE.value:
                 return True
@@ -165,18 +179,18 @@ class Evaluator:
             result = self.eval(i, env)
             if result != None:
                 if (
-                    result._type == object.RETURN_VALUE_OBJ
-                    or result._type == object.ERROR_OBJ
+                    result._type == mobject.RETURN_VALUE_OBJ
+                    or result._type == mobject.ERROR_OBJ
                 ):
                     return result
         return result
 
     def new_error(self, format_string, *args):
-        return object.Error(message=format_string % args)
+        return mobject.Error(message=format_string % args)
 
     def is_error(self, obj):
         if obj != None:
-            return obj._type == object.ERROR_OBJ
+            return obj._type == mobject.ERROR_OBJ
         return False
 
     def eval_identifier(self, node, env):
@@ -184,3 +198,34 @@ class Evaluator:
         if self.is_error(val) or val == None:
             return self.new_error("Identifier not found: %s", node.value)
         return val
+
+    def eval_expressions(self, exps, env):
+        results = []
+        for i in exps:
+            evaluated = self.eval(i, env)
+            if self.is_error(evaluated):
+                return [evaluated]
+            results.append(evaluated)
+        return results
+
+    def apply_function(self, func, args):
+
+        if not isinstance(func, mobject.Function):
+            return self.new_error("not a function: %s", func._type)
+        extended_env = self.extended_function_env(func, args)
+        evaluated = self.eval(func.body, extended_env)
+        return self.unwrap_return_value(evaluated)
+
+    def extended_function_env(self, func, args):
+        env = mobject.NewClosedEnvironment()
+        env.env = func.env.env
+
+        for k, i in enumerate(func.parameters):
+            env.set(i.value, args[k])
+
+        return env
+
+    def unwrap_return_value(self, obj):
+        if isinstance(obj, mobject.ReturnValue):
+            return obj.value
+        return obj

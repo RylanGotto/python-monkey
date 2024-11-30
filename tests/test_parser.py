@@ -1,7 +1,7 @@
 import pytest
 
-from monkey.ast import *
 from monkey.lexer import Lexer
+from monkey.mast import *
 from monkey.parser import Parser
 
 # Test case for multiple let statements
@@ -9,8 +9,8 @@ from monkey.parser import Parser
 
 test_case_let_state_0 = [
     {"input": "let x = 5;", "ident": "x", "value": 5},
-    # {"input": "let y = true;", "ident": "y", "value": "true"},
-    # {"input": "let foobar = y;", "ident": "foobar", "value": "y"},
+    {"input": "let y = true;", "ident": "y", "value": "true"},
+    {"input": "let foobar = y;", "ident": "foobar", "value": "y"},
 ]
 
 

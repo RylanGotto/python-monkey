@@ -2,7 +2,7 @@ import pytest
 
 from monkey.evaluator import Evaluator
 from monkey.lexer import Lexer
-from monkey.object import *
+from monkey.mobject import *
 from monkey.parser import Parser
 
 
@@ -202,3 +202,47 @@ def test_let_statements():
 
     for i in cases:
         _test_interger_object(_test_eval(i[0]), i[1])
+
+
+def test_function_object():
+    _input = "fn(x) { x + 2; };"
+
+    evaluated = _test_eval(_input)
+    if not isinstance(evaluated, Function):
+        assert False, f"object is not Function, got {evaluated}"
+    func = evaluated
+
+    if len(func.parameters) != 1:
+        assert False, f"function has wrong parmeters, got {func.paremeters}"
+    if func.parameters[0].string() != "x":
+        assert False, f"parameter is not 'x' got {func.parameters[0]}"
+
+    expected_body = "(x + 2)"
+
+    if func.body.string() != expected_body:
+        assert False, f"body is not {expected_body}, got {func.body.string()}"
+
+
+def test_function_application():
+    cases = [
+        ("let identity = fn(x) { x; }; identity(5);", 5),
+        ("let identity = fn(x) { return x; }; identity(5);", 5),
+        ("let double = fn(x) { x * 2; }; double(5);", 10),
+        ("let add = fn(x, y) { x + y; }; add(5, 5);", 10),
+        ("let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));", 20),
+        ("fn(x) { x; }(5)", 5),
+    ]
+
+    for i in cases:
+        _test_interger_object(_test_eval(i[0]), i[1])
+
+
+def test_closures():
+    _input = """
+        let newAdder = fn(x) {
+            fn(y) { x + y };
+        };
+        let addTwo = newAdder(2);
+        addTwo(2);
+    """
+    _test_interger_object(_test_eval(_input), 4)
