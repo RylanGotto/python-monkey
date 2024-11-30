@@ -1,7 +1,8 @@
 import os
 
-from . import Lexer, Parser
-from .Evaluator import Ev
+from . import lexer, parser
+from .evaluator import Evaluator
+from .object import Environment
 
 PROMPT = ">> "
 
@@ -16,21 +17,22 @@ def start():
     """
     print(f"Hello {os.getlogin()}! This is the Monkey programming language in python")
 
+    ev = Evaluator()
+    env = Environment()
+
     while True:
         # Prompt the user for input
         inp = input(PROMPT)
-
+        L = lexer.Lexer(inp)
+        p = parser.Parser(L)
+        program = p.parse_program()
         # Initialize the Lexer with the input string
-        L = Lexer.Lexer(inp)
-        parser = Parser.Parser(L)
-        ev = Ev()
 
-        program = parser.parse_program()
-        if len(parser.errors) != 0:
-            print_parser_errors(parser.errors)
+        if len(p.errors) != 0:
+            print_parser_errors(p.errors)
             continue
 
-        evaluated = ev.eval(program)
+        evaluated = ev.eval(program, env)
         if evaluated is not None:
             print(evaluated.inspect(), "\n")
 

@@ -1,8 +1,8 @@
 import pytest
 
-from monkey.Ast import *
-from monkey.Lexer import Lexer
-from monkey.Parser import Parser
+from monkey.ast import *
+from monkey.lexer import Lexer
+from monkey.parser import Parser
 
 # Test case for multiple let statements
 

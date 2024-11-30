@@ -1,5 +1,5 @@
-from monkey.Ast import Identifier, LetStatement, Program
-from monkey.Tokens import *
+from monkey.ast import Identifier, LetStatement, Program
+from monkey.tokens import *
 
 
 def test_string() -> None:

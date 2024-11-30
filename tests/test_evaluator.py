@@ -1,16 +1,16 @@
 import pytest
 
-from monkey.Evaluator import Ev
-from monkey.Lexer import Lexer
-from monkey.Object import *
-from monkey.Parser import Parser
+from monkey.evaluator import Evaluator
+from monkey.lexer import Lexer
+from monkey.object import *
+from monkey.parser import Parser
 
 
-def _test_eval(input):
-    l = Lexer(input)
+def _test_eval(_input):
+    l = Lexer(_input)
     p = Parser(l)
     program = p.parse_program()
-    ev = Ev()
+    ev = Evaluator()
     env = Environment()
     return ev.eval(program, env)
 
@@ -122,7 +122,6 @@ def test_if_else_expressions():
 
     for i in cases:
         evaluated = _test_eval(i[0])
-
         if isinstance(i[1], int):
             _test_interger_object(evaluated, i[1])
         else:
@@ -198,6 +197,7 @@ def test_let_statements():
         ("let a = 5 * 5; a;", 25),
         ("let a = 5; let b = a; b;", 5),
         ("let a = 5; let b = a; let c = a + b + 5; c;", 15),
+        ("let d = if (c > a) { 99 } else { 100 }; d;", 99),
     ]
 
     for i in cases:

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional
 
-from . import Tokens
+from . import tokens
 
 
 @dataclass
@@ -145,7 +145,7 @@ class Identifier(Expression):
         value (str): The name of the identifier.
     """
 
-    token: Tokens.Token
+    token: tokens.Token
     value: str
 
     def string(self) -> str:
@@ -168,7 +168,7 @@ class IntegerLiteral(Expression):
         value (int): The value of the integer.
     """
 
-    token: Tokens.Token
+    token: tokens.Token
     value: int
 
     def string(self) -> str:
@@ -192,7 +192,7 @@ class LetStatement(Statement):
         value (Expression): The value assigned to the identifier.
     """
 
-    token: Tokens.Token
+    token: tokens.Token
     name: Identifier
     value: Expression
 
@@ -216,7 +216,7 @@ class ReturnStatement(Statement):
         return_value (Expression): The value being returned.
     """
 
-    token: Tokens.Token
+    token: tokens.Token
     return_value: Expression
 
     def string(self) -> str:
@@ -240,7 +240,7 @@ class ExpressionStatement(Statement):
 
     def __init__(
         self,
-        token: Optional[Tokens.Token] = None,
+        token: Optional[tokens.Token] = None,
         expression: Optional[Expression] = None,
     ):
         self.token = token
@@ -266,7 +266,7 @@ class PrefixExpression(Expression):
         right (Expression): The expression to the right of the operator.
     """
 
-    def __init__(self, token: Tokens.Token, operator: str, right: Expression):
+    def __init__(self, token: tokens.Token, operator: str, right: Expression):
         self.token = token
         self.operator = operator
         self.right = right
@@ -293,7 +293,7 @@ class InfixExpression(Expression):
     """
 
     def __init__(
-        self, token: Tokens.Token, left: Expression, operator: str, right: Expression
+        self, token: tokens.Token, left: Expression, operator: str, right: Expression
     ):
         self.token = token
         self.left = left
@@ -321,7 +321,7 @@ class Boolean(Expression):
         _value (bool): The boolean value (True or False).
     """
 
-    token: Tokens.Token
+    token: tokens.Token
     _value: bool
 
     @property
@@ -356,7 +356,7 @@ class Boolean(Expression):
 
 @dataclass
 class BlockStatement(Statement):
-    token: Tokens.Token
+    token: tokens.Token
     statements: List[Statement]
 
     def statement_node(self):
@@ -375,7 +375,7 @@ class BlockStatement(Statement):
 
 @dataclass
 class IfExpression(Expression):
-    token: Tokens.Token
+    token: tokens.Token
     condition: Expression
     consequence: BlockStatement
     alternative: BlockStatement
@@ -400,7 +400,7 @@ class IfExpression(Expression):
 
 @dataclass
 class FunctionLiteral(Expression):
-    token: Tokens.Token
+    token: tokens.Token
     parameters: List[Identifier]
     body: BlockStatement
 
@@ -427,7 +427,7 @@ class FunctionLiteral(Expression):
 
 @dataclass
 class CallExpression(Expression):
-    token: Tokens.Token
+    token: tokens.Token
     function: Expression
     arguments: List[Expression]
 

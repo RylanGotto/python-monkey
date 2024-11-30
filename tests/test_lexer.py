@@ -1,7 +1,7 @@
 import pytest
 
-from monkey.Lexer import Lexer
-from monkey.Tokens import *
+from monkey.lexer import Lexer
+from monkey.tokens import *
 
 
 def test_next_token():

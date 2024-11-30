@@ -1,28 +1,28 @@
-from . import Ast, Object
+from . import ast, object
 
 
-class Ev:
-    NULL = Object.Null()
-    TRUE = Object.Boolean(value="true")
-    FALSE = Object.Boolean(value="false")
+class Evaluator:
+    NULL = object.Null()
+    TRUE = object.Boolean(value="true")
+    FALSE = object.Boolean(value="false")
 
     def eval(self, node, env):
         counter = 0
         match type(node):
-            case Ast.Program:
+            case ast.Program:
                 return self.eval_program(node, env)
-            case Ast.ExpressionStatement:
+            case ast.ExpressionStatement:
                 return self.eval(node.expression, env)
-            case Ast.IntegerLiteral:
-                return Object.Integer(value=node.value)
-            case Ast.Boolean:
+            case ast.IntegerLiteral:
+                return object.Integer(value=node.value)
+            case ast.Boolean:
                 return self.native_bool_to_boolean(node.value)
-            case Ast.PrefixExpression:
+            case ast.PrefixExpression:
                 right = self.eval(node.right, env)
                 if self.is_error(right):
                     return right
                 return self.eval_prefix_expression(node.operator, right)
-            case Ast.InfixExpression:
+            case ast.InfixExpression:
                 left = self.eval(node.left, env)
                 if self.is_error(left):
                     return left
@@ -30,21 +30,21 @@ class Ev:
                 if self.is_error(right):
                     return right
                 return self.eval_infix_expression(node.operator, left, right)
-            case Ast.BlockStatement:
+            case ast.BlockStatement:
                 return self.eval_block_statement(node, env)
-            case Ast.IfExpression:
+            case ast.IfExpression:
                 return self.eval_if_expression(node, env)
-            case Ast.ReturnStatement:
+            case ast.ReturnStatement:
                 val = self.eval(node.return_value, env)
                 if self.is_error(val):
                     return val
-                return Object.ReturnValue(value=val)
-            case Ast.LetStatement:
+                return object.ReturnValue(value=val)
+            case ast.LetStatement:
                 val = self.eval(node.value, env)
                 if self.is_error(val):
                     return val
                 env.set(node.name.value, val)
-            case Ast.Identifier:
+            case ast.Identifier:
                 return self.eval_identifier(node, env)
 
         return None
@@ -53,9 +53,9 @@ class Ev:
         result = None
         for i in program.statements:
             result = self.eval(i, env)
-            if isinstance(result, Object.ReturnValue):
+            if isinstance(result, object.ReturnValue):
                 return result.value
-            elif isinstance(result, Object.Error):
+            elif isinstance(result, object.Error):
                 return result
         return result
 
@@ -85,14 +85,14 @@ class Ev:
                 return self.FALSE
 
     def eval_minus_prefix_operator_expression(self, right):
-        if right._type != Object.INTEGER_OBJ:
+        if right._type != object.INTEGER_OBJ:
             return self.new_error("unknown operator: -%s", right._type)
 
         value = right.value
-        return Object.Integer(value=-value)
+        return object.Integer(value=-value)
 
     def eval_infix_expression(self, operator, left, right):
-        if left._type == Object.INTEGER_OBJ and right._type == Object.INTEGER_OBJ:
+        if left._type == object.INTEGER_OBJ and right._type == object.INTEGER_OBJ:
             return self.eval_integer_infix_expression(operator, left, right)
         elif operator == "==":
             return self.native_bool_to_boolean(left.value == right.value)
@@ -112,13 +112,13 @@ class Ev:
 
         match operator:
             case "+":
-                return Object.Integer(value=left_val + right_val)
+                return object.Integer(value=left_val + right_val)
             case "-":
-                return Object.Integer(value=left_val - right_val)
+                return object.Integer(value=left_val - right_val)
             case "*":
-                return Object.Integer(value=left_val * right_val)
+                return object.Integer(value=left_val * right_val)
             case "/":
-                return Object.Integer(value=left_val / right_val)
+                return object.Integer(value=left_val / right_val)
             case "<":
                 return self.native_bool_to_boolean(left_val < right_val)
             case ">":
@@ -144,8 +144,12 @@ class Ev:
             return self.NULL
 
     def is_truthy(self, obj):
-        match obj.value:
-            case Object.NULL_OBJ._type:
+        try:
+            val = obj.value
+        except:
+            val = obj
+        match val:
+            case object.NULL_OBJ._type:
                 return False
             case self.TRUE.value:
                 return True
@@ -161,18 +165,18 @@ class Ev:
             result = self.eval(i, env)
             if result != None:
                 if (
-                    result._type == Object.RETURN_VALUE_OBJ
-                    or result._type == Object.ERROR_OBJ
+                    result._type == object.RETURN_VALUE_OBJ
+                    or result._type == object.ERROR_OBJ
                 ):
                     return result
         return result
 
     def new_error(self, format_string, *args):
-        return Object.Error(message=format_string % args)
+        return object.Error(message=format_string % args)
 
     def is_error(self, obj):
         if obj != None:
-            return obj._type == Object.ERROR_OBJ
+            return obj._type == object.ERROR_OBJ
         return False
 
     def eval_identifier(self, node, env):

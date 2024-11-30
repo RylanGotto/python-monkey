@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .Tokens import *
+from .tokens import *
 
 
 class Lexer:
@@ -77,7 +77,7 @@ class Lexer:
                 token = new_token(LT, self.ch)
             case ">":
                 token = new_token(GT, self.ch)
-            case 0 | "0":
+            case 0:
                 token = new_token(EOF, "")
             case _:
                 if is_letter(self.ch):
